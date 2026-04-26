@@ -46,15 +46,10 @@ inline void render(CheckBox& checkbox)
 
     std::string bindAdd = "+##bind-add-for-" + itemKey;
 
-    std::string bindOpenPopup = "* ##" + itemKey;
+    std::string bindOpenPopup = "+##" + itemKey;
 
     ImGui::Checkbox(item.name.c_str(), &item.value);
-
-    ImGui::SameLine();
-    if (ImGui::SmallButton(bindOpenPopup.c_str()))
-    {
-        ImGui::OpenPopup(bindItemPopup.c_str());
-    }
+    ImGui::OpenPopupOnItemClick(bindItemPopup.c_str(), ImGuiPopupFlags_MouseButtonRight);
 
     if (ImGui::BeginPopup(bindItemPopup.c_str()))
     {

@@ -115,13 +115,20 @@ void loadConfig()
     auto& rageSection = jsonResult["Rage"];
     if (!rageSection.empty())
     {
-        LOAD_ITEM(rageSection, instance.rage.enable);
-        LOAD_ITEM(rageSection, instance.rage.hitChance);
-        LOAD_ITEM(rageSection, instance.rage.minDamage);
-        LOAD_ITEM(rageSection, instance.rage.targetSelection);
-        LOAD_ITEM(rageSection, instance.rage.hitBoxes);
-        LOAD_ITEM(rageSection, instance.rage.aimRandomize);
-        LOAD_ITEM(rageSection, instance.rage.aimHitboxColor);
+        for (int i = 0; i < MAX_CONFIGS; ++i)
+        {
+            LOAD_ITEM(rageSection, instance.rage.config[i].hitBoxes);
+            LOAD_ITEM(rageSection, instance.rage.config[i].multiPoints);
+            LOAD_ITEM(rageSection, instance.rage.config[i].pointHeadScale);
+            LOAD_ITEM(rageSection, instance.rage.config[i].pointBodyScale);
+            LOAD_ITEM(rageSection, instance.rage.config[i].hitChance);
+            LOAD_ITEM(rageSection, instance.rage.config[i].minDamage);
+            LOAD_ITEM(rageSection, instance.rage.config[i].preferBody);
+            LOAD_ITEM(rageSection, instance.rage.config[i].quickStop);
+            LOAD_ITEM(rageSection, instance.rage.config[i].overrideGlobal);
+        }
+
+        LOAD_ITEM(rageSection, instance.rage.configSelect);
     }
 }
 
@@ -134,13 +141,20 @@ void saveConfig()
     auto& instance = getMenuInstance();
     auto& rageSection = jsonToWrite["Rage"];
     {
-        SAVE_ITEM(rageSection, instance.rage.enable);
-        SAVE_ITEM(rageSection, instance.rage.hitChance);
-        SAVE_ITEM(rageSection, instance.rage.minDamage);
-        SAVE_ITEM(rageSection, instance.rage.targetSelection);
-        SAVE_ITEM(rageSection, instance.rage.hitBoxes);
-        SAVE_ITEM(rageSection, instance.rage.aimRandomize);
-        SAVE_ITEM(rageSection, instance.rage.aimHitboxColor);
+        for (int i = 0; i < MAX_CONFIGS; ++i)
+        {
+            SAVE_ITEM(rageSection, instance.rage.config[i].hitBoxes);
+            SAVE_ITEM(rageSection, instance.rage.config[i].multiPoints);
+            SAVE_ITEM(rageSection, instance.rage.config[i].pointHeadScale);
+            SAVE_ITEM(rageSection, instance.rage.config[i].pointBodyScale);
+            SAVE_ITEM(rageSection, instance.rage.config[i].hitChance);
+            SAVE_ITEM(rageSection, instance.rage.config[i].minDamage);
+            SAVE_ITEM(rageSection, instance.rage.config[i].preferBody);
+            SAVE_ITEM(rageSection, instance.rage.config[i].quickStop);
+            SAVE_ITEM(rageSection, instance.rage.config[i].overrideGlobal);
+        }
+
+        SAVE_ITEM(rageSection, instance.rage.configSelect);
     }
 
     configFile << jsonToWrite;

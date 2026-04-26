@@ -48,7 +48,7 @@ inline void render(ColorPicker& colorPicker)
 
     std::string bindAdd = "+##bind-add-for-" + itemKey;
 
-    std::string bindOpenPopup = "* ##" + itemKey;
+    std::string bindOpenPopup = "+##" + itemKey;
 
     {
         ImVec4 col = ImGui::ColorConvertU32ToFloat4(item.value);
@@ -56,11 +56,7 @@ inline void render(ColorPicker& colorPicker)
             item.value = ImGui::ColorConvertFloat4ToU32(col);
     }
 
-    ImGui::SameLine();
-    if (ImGui::SmallButton(bindOpenPopup.c_str()))
-    {
-        ImGui::OpenPopup(bindItemPopup.c_str());
-    }
+    ImGui::OpenPopupOnItemClick(bindItemPopup.c_str(), ImGuiPopupFlags_MouseButtonRight);
 
     if (ImGui::BeginPopup(bindItemPopup.c_str()))
     {

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include "gui.h"
 
@@ -8,6 +9,7 @@ namespace gui
 {
 void init()
 {
+    getMenuInstance().initConfig();
     binds::initBinds();
 }
 
@@ -140,39 +142,124 @@ std::string getBindValueFromString(const std::string& value, void* ptr, int item
 
 void renderBindsDebugWindow()
 {
-    ImGui::Begin("BIND LIST", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("BIND LIST", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
     {
         auto& binds = getMenuInstance().keyBindManager.getBindList();
         auto& itemsInMemory = getMenuInstance().itemsInMemory;
-        for (auto it = binds.begin(); it != binds.end(); ++it)
+
+        static std::unordered_map<void*, std::pair<void*, int>> items{};
+        for (auto& i : itemsInMemory)
+            items[getItemValuePointerFromItemPointer(i.first, i.second)] = std::make_pair(i.first, i.second);
+
+        bool noBinds = true;
+        for (auto it = binds.rbegin(); it != binds.rend(); ++it)
         {
             auto item = (*it);
             if (item->getItemType() == ITEM_UI_OPEN)
                 continue;
 
-            auto itemThatBindUse = std::find_if(itemsInMemory.begin(), itemsInMemory.end(), [item](const std::pair<void*, int>& pair) {
-                return getItemValuePointerFromItemPointer(pair.first, pair.second) == item->getItemPtr();
-                });
-
-            if (itemThatBindUse == itemsInMemory.end())
+            auto itemThatBindUse = items.find(item->getItemPtr());
+            if (itemThatBindUse == items.end())
                 continue;
 
             bool keyPressed = item->getType() == BIND_RELEASE ? !item->getPressed() : item->getPressed();
             if (keyPressed)
             {
+                noBinds = false;
+
                 // bind format would be:
                 // [+] ItemName -> Value (BindMode)
-                std::string bindValue = getBindValueFromString(item->getBindValue(), itemThatBindUse->first, itemThatBindUse->second);
-                std::string infoBegin = "[+] " + item->getItemName();
-                std::string infoEnd = " -> " + bindValue + " (" + gui::binds::getBindMode(item->getType()) + ")";
+                std::string bindValue = getBindValueFromString(item->getBindValue(), itemThatBindUse->second.first, itemThatBindUse->second.second);
+                std::string infoBegin = item->getItemName();
+                std::string infoEnd = " " + bindValue + " (" + gui::binds::getBindMode(item->getType()) + ")";
 
                 ImGui::Text("%s%s", getFormattedText(infoBegin).c_str(), infoEnd.c_str());
             }
         }
+
+        if (noBinds)
+            ImGui::Text("No active binds found.");
     }
     ImGui::End();
 }
 
+enum UI_TABS
+{
+    TAB_RAGE = 0,
+    TAB_LEGIT,
+    TAB_VISUALS,
+    TAB_MISC,
+    TAB_SKINS,
+    TAB_CONFIGS,
+    TAB_LUA
+};
+
+int tabSelection = 0;
+std::vector<std::string> tabs = { "Rage", "Legit", "Visuals", "Misc", "Skins", "Configs", "LUA" };
+
+// TO-DO:
+// subtabs
+// MAIN (with weapon config)
+// ANTI-AIM (stand/move/air/crouch/slowwalk)
+void renderRageTab()
+{
+    combobox::render(getMenuInstance().rage.configSelect);
+
+    auto& itemFromWeaponConfig = getMenuInstance().rage.config[getMenuInstance().rage.configSelect.item.value];
+
+    if (getMenuInstance().rage.configSelect.item.value != 0)
+        checkbox::render(itemFromWeaponConfig.overrideGlobal);
+
+    multicombobox::render(itemFromWeaponConfig.hitBoxes);
+    multicombobox::render(itemFromWeaponConfig.multiPoints);
+    slider::render(itemFromWeaponConfig.pointHeadScale);
+    slider::render(itemFromWeaponConfig.pointBodyScale);
+    checkbox::render(itemFromWeaponConfig.preferBody);
+    slider::render(itemFromWeaponConfig.hitChance);
+    slider::render(itemFromWeaponConfig.minDamage);
+    multicombobox::render(itemFromWeaponConfig.quickStop);
+}
+
+void renderLegitTab()
+{
+
+}
+
+void renderVisualsTab()
+{
+
+}
+
+void renderMiscTab()
+{
+
+}
+
+void renderSkinsTab()
+{
+}
+
+void renderConfigsTab()
+{
+    if (ImGui::SmallButton("Save"))
+        config::saveConfig();
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Load"))
+        config::loadConfig();
+}
+
+void renderLUATab()
+{
+}
+
+// TO-DO: different layout that allows to handle multiple sections at the same time
+// for example:
+// RAGE MAIN:
+// [ Main child with enable / exploits ]
+// [ Weapon config ]
+// ANTI AIM MAIN:
+// [ Main Child with pitch yaw (offset) jitter (offset) at target ]
+// [ Misc Child with freestanding edge ]
 void renderMainUI()
 {
     if (getMenuInstance().opened)
@@ -180,22 +267,50 @@ void renderMainUI()
         ImGui::SetNextWindowSize(ImVec2(780, 650));
 
         std::string windowTitle = "52HOOK - " + std::string(__DATE__);
-        ImGui::Begin(windowTitle.c_str(), &getMenuInstance().opened, ImGuiWindowFlags_NoResize);
+        ImGui::Begin(windowTitle.c_str(), &getMenuInstance().opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
         {
             using namespace gui::items;
-            checkbox::render(getMenuInstance().rage.enable);
-            combobox::render(getMenuInstance().rage.targetSelection);
-            slider::render(getMenuInstance().rage.hitChance);
-            slider::render(getMenuInstance().rage.minDamage);
-            multicombobox::render(getMenuInstance().rage.hitBoxes);
-            slider::render(getMenuInstance().rage.aimRandomize);
-            colorpicker::render(getMenuInstance().rage.aimHitboxColor);
 
-            if (ImGui::SmallButton("Save"))
-                config::saveConfig();
-            ImGui::SameLine();
-            if (ImGui::SmallButton("Load"))
-                config::loadConfig();
+            ImGui::BeginGroup();
+            for (int i = 0; i < tabs.size(); ++i)
+            {
+                if (ImGui::Button(tabs[i].c_str(), ImVec2(tabs[i].length() * 10, 18)))
+                    tabSelection = i;
+
+                ImGui::SameLine();
+            }
+            ImGui::EndGroup();
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            ImGui::BeginGroup();
+            {
+                switch (tabSelection)
+                {
+                case TAB_RAGE:
+                    renderRageTab();
+                    break;
+                case TAB_LEGIT:
+                    renderLegitTab();
+                    break;
+                case TAB_VISUALS:
+                    renderVisualsTab();
+                    break;
+                case TAB_MISC:
+                    renderMiscTab();
+                    break;
+                case TAB_SKINS:
+                    renderSkinsTab();
+                    break;
+                case TAB_CONFIGS:
+                    renderConfigsTab();
+                    break;
+                case TAB_LUA:
+                    renderLUATab();
+                    break;
+                }
+            }
+            ImGui::EndGroup();
         }
         ImGui::End();
     }
@@ -205,5 +320,34 @@ Menu& getMenuInstance()
 {
     static Menu instance;
     return instance;
+}
+
+void Menu::initConfig()
+{
+    for (int i = 0; i < MAX_CONFIGS; ++i)
+    {
+        auto index = std::to_string(i);
+        rage.config[i].hitBoxes = MAKE_MULTICOMBO_RT("Hit Boxes##rage" + index, 0, COMBO_LIST("Head", "Neck", "Chest", "Pelvis", "Stomach", "Arms", "Legs", "Feet"));
+        rage.config[i].multiPoints = MAKE_MULTICOMBO_RT("Multi Points##rage" + index, 0, COMBO_LIST("Head", "Neck", "Chest", "Pelvis", "Stomach", "Arms", "Legs", "Feet"));
+        rage.config[i].pointHeadScale = MAKE_SLIDER_RT("Head Scale##rage" + index, 0, 0, 100);
+        rage.config[i].pointBodyScale = MAKE_SLIDER_RT("Body Scale##rage" + index, 0, 0, 100);
+        rage.config[i].hitChance = MAKE_SLIDER_RT("Hit Chance##rage" + index, 0, 0, 100);
+        rage.config[i].minDamage = MAKE_SLIDER_RT("Min Damage##rage" + index, 0, 0, 100);
+        rage.config[i].preferBody = MAKE_CHECKBOX_RT("Prefer Body##rage" + index, false);
+        rage.config[i].quickStop = MAKE_MULTICOMBO_RT("Quick Stop##rage" + index, 0, COMBO_LIST("Early", "Between Shots", "In Air", "Ignore Molotov"));
+        rage.config[i].overrideGlobal = MAKE_CHECKBOX_RT("Override Global##rage" + index, false);
+
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].hitBoxes));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].multiPoints));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].pointHeadScale));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].pointBodyScale));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].hitChance));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].minDamage));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].preferBody));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].quickStop));
+        itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].overrideGlobal));
+    }
+
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.configSelect));
 }
 }

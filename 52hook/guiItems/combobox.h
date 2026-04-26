@@ -52,7 +52,7 @@ inline void render(ComboBox& comboBox)
 
     std::string bindAdd = "+##bind-add-for-" + itemKey;
 
-    std::string bindOpenPopup = "* ##" + itemKey;
+    std::string bindOpenPopup = "+##" + itemKey;
 
     auto comboSize = static_cast<int>(item.itemsList.size());
 
@@ -60,12 +60,7 @@ inline void render(ComboBox& comboBox)
         ImGui::Combo(item.name.c_str(), &item.value, Items_VectorGetter, item.itemsList.data(), comboSize);
         item.value = std::clamp(item.value, 0, comboSize - 1);
     }
-
-    ImGui::SameLine();
-    if (ImGui::SmallButton(bindOpenPopup.c_str()))
-    {
-        ImGui::OpenPopup(bindItemPopup.c_str());
-    }
+    ImGui::OpenPopupOnItemClick(bindItemPopup.c_str(), ImGuiPopupFlags_MouseButtonRight);
 
     if (ImGui::BeginPopup(bindItemPopup.c_str()))
     {
