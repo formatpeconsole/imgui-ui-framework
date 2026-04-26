@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "7zip",
+    "freetype",
+    "lunasvg",
+    "nlohmann-json",
+    "plutosvg",
+    "minhook"
+  ]
+}

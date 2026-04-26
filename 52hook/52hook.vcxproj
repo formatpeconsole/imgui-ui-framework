@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{c6418f32-a4a8-4109-9f2e-78695169609d}</ProjectGuid>
+    <RootNamespace>52hook</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>52hook</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)vcpkg_installed\x64-windows-static\include;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype\config;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutovg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutosvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\lunasvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\libpng16;$(SolutionDir)vcpkg_installed\x64-windows-static\include\nlohmann;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)vcpkg_installed\x64-windows-static\include;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype\config;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutovg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutosvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\lunasvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\libpng16;$(SolutionDir)vcpkg_installed\x64-windows-static\include\nlohmann;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\debug\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>true</VcpkgEnabled>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;52HOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>rpcrt4.lib;bz2.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlib.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16.lib;freetype.lib;minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;52HOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>rpcrt4.lib;bz2d.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlibd.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16d.lib;freetyped.lib;minhook.x64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_demo.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_draw.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_freetype.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_impl_dx11.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_impl_win32.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_tables.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_widgets.cpp" />
+    <ClCompile Include="gui\binds\binds.cpp" />
+    <ClCompile Include="gui\binds\utils.cpp" />
+    <ClCompile Include="gui\gui.cpp" />
+    <ClCompile Include="hooks\hooks.cpp" />
+    <ClCompile Include="in-game\sigs\sigs-handles.cpp" />
+    <ClCompile Include="main\dllInstance.cpp" />
+    <ClCompile Include="main\dllmain.cpp" />
+    <ClCompile Include="mem\sigscan.cpp" />
+    <ClCompile Include="render\render.cpp" />
+    <ClCompile Include="threadpool\threadpool.cpp" />
+    <ClCompile Include="utils\uuid.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config\config.h" />
+    <ClInclude Include="deps\imguiFramework\imconfig.h" />
+    <ClInclude Include="deps\imguiFramework\imgui.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_freetype.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_impl_dx11.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_impl_win32.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_internal.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_rectpack.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_textedit.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_truetype.h" />
+    <ClInclude Include="guiItems\checkbox.h" />
+    <ClInclude Include="guiItems\colorpicker.h" />
+    <ClInclude Include="guiItems\combobox.h" />
+    <ClInclude Include="guiItems\keybind.h" />
+    <ClInclude Include="guiItems\multicombobox.h" />
+    <ClInclude Include="guiItems\utils.h" />
+    <ClInclude Include="gui\binds\binds.h" />
+    <ClInclude Include="gui\binds\binds-manager.h" />
+    <ClInclude Include="gui\binds\utils.h" />
+    <ClInclude Include="gui\gui.h" />
+    <ClInclude Include="gui\item.h" />
+    <ClInclude Include="guiItems\items.h" />
+    <ClInclude Include="guiItems\slider.h" />
+    <ClInclude Include="hooks\hooks.h" />
+    <ClInclude Include="in-game\sigs\sigs-handles.h" />
+    <ClInclude Include="main\dllInstance.h" />
+    <ClInclude Include="mem\ptr.h" />
+    <ClInclude Include="mem\raii.h" />
+    <ClInclude Include="mem\sigscan.h" />
+    <ClInclude Include="render\render.h" />
+    <ClInclude Include="threadpool\threadpool.h" />
+    <ClInclude Include="utils\uuid.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{c5c0ba32-2378-473f-9d56-b5b799d30098}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main\dllmain.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="threadpool\threadpool.cpp" />
+    <ClCompile Include="main\dllInstance.cpp" />
+    <ClCompile Include="mem\sigscan.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_demo.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_draw.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_impl_dx11.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_impl_win32.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_tables.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_widgets.cpp" />
+    <ClCompile Include="deps\imguiFramework\imgui_freetype.cpp" />
+    <ClCompile Include="in-game\sigs\sigs-handles.cpp" />
+    <ClCompile Include="hooks\hooks.cpp" />
+    <ClCompile Include="render\render.cpp" />
+    <ClCompile Include="gui\gui.cpp" />
+    <ClCompile Include="gui\binds\binds.cpp" />
+    <ClCompile Include="utils\uuid.cpp" />
+    <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="gui\binds\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="threadpool\threadpool.h" />
+    <ClInclude Include="main\dllInstance.h" />
+    <ClInclude Include="mem\raii.h" />
+    <ClInclude Include="mem\sigscan.h" />
+    <ClInclude Include="mem\ptr.h" />
+    <ClInclude Include="deps\imguiFramework\imconfig.h" />
+    <ClInclude Include="deps\imguiFramework\imgui.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_impl_dx11.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_impl_win32.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_internal.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_rectpack.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_textedit.h" />
+    <ClInclude Include="deps\imguiFramework\imstb_truetype.h" />
+    <ClInclude Include="deps\imguiFramework\imgui_freetype.h" />
+    <ClInclude Include="in-game\sigs\sigs-handles.h" />
+    <ClInclude Include="hooks\hooks.h" />
+    <ClInclude Include="render\render.h" />
+    <ClInclude Include="gui\gui.h" />
+    <ClInclude Include="gui\binds\binds.h" />
+    <ClInclude Include="guiItems\slider.h" />
+    <ClInclude Include="guiItems\items.h" />
+    <ClInclude Include="gui\item.h" />
+    <ClInclude Include="utils\uuid.h" />
+    <ClInclude Include="config\config.h" />
+    <ClInclude Include="guiItems\checkbox.h" />
+    <ClInclude Include="guiItems\combobox.h" />
+    <ClInclude Include="guiItems\multicombobox.h" />
+    <ClInclude Include="guiItems\colorpicker.h" />
+    <ClInclude Include="guiItems\utils.h" />
+    <ClInclude Include="guiItems\keybind.h" />
+    <ClInclude Include="gui\binds\binds-manager.h" />
+    <ClInclude Include="gui\binds\utils.h" />
+  </ItemGroup>
+</Project>
