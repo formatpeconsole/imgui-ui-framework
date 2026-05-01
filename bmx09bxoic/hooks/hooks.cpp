@@ -25,6 +25,15 @@ LRESULT WINAPI Hooked_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     gui::binds::handleMainBinds(uMsg, wParam, lParam);
     getMenuInstance().keyBindManager.updateMainBindStates();
 
+#ifdef _DEBUG
+    if (uMsg == WM_KEYDOWN && wParam == VK_NEXT)
+    {
+        bool prevState = !((lParam) >> 30) & 1;
+        if (prevState)
+            getDllInstance().shouldQuit = !getDllInstance().shouldQuit;
+    }
+#endif
+
     if (getMenuInstance().opened)
     {
         if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam) == 0)

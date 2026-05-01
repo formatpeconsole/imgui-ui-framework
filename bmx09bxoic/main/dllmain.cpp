@@ -91,10 +91,6 @@ void APIENTRY Main(HMODULE handle)
     initDllSignatures();
     hookGameFunctions();
 
-    const auto state = MessageBoxA(0, "HI", 0, 0);
-    if (state == IDOK)
-        getDllInstance().shouldQuit = true;
-
     while (!getDllInstance().shouldQuit)
         std::this_thread::sleep_for(1s);
 

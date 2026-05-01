@@ -130,6 +130,11 @@ void loadConfig()
             LOAD_ITEM(rageSection, instance.rage.config[i].overrideGlobal);
         }
 
+        LOAD_ITEM(rageSection, instance.rage.enable);
+        LOAD_ITEM(rageSection, instance.rage.autoRevolver);
+        LOAD_ITEM(rageSection, instance.rage.doubleTap);
+        LOAD_ITEM(rageSection, instance.rage.noSpread);
+        LOAD_ITEM(rageSection, instance.rage.duckPeekAssist);
         LOAD_ITEM(rageSection, instance.rage.configSelect);
     }
 }
@@ -159,6 +164,11 @@ void saveConfig()
             SAVE_ITEM(rageSection, instance.rage.config[i].overrideGlobal);
         }
 
+        SAVE_ITEM(rageSection, instance.rage.enable);
+        SAVE_ITEM(rageSection, instance.rage.autoRevolver);
+        SAVE_ITEM(rageSection, instance.rage.doubleTap);
+        SAVE_ITEM(rageSection, instance.rage.noSpread);
+        SAVE_ITEM(rageSection, instance.rage.duckPeekAssist);
         SAVE_ITEM(rageSection, instance.rage.configSelect);
     }
 

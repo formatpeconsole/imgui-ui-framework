@@ -60,7 +60,6 @@ using namespace items;
 
 struct RageTab
 {
-    // TO-DO: Auto Fire, Quick Scope, FOV, Silent Aim
     struct WeaponConfig
     {
         CheckBox autoFire{};
@@ -77,6 +76,45 @@ struct RageTab
         CheckBox overrideGlobal{};
     };
 
+    struct AntiAim
+    {
+        MAKE_CHECKBOX(enable, "Enable##anti-aim", false);
+        MAKE_CHECKBOX(atTarget, "At Target##anti-aim", false);
+
+        MAKE_COMBO(pitch, "Pitch##anti-aim", 0, COMBO_LIST(
+            "Off",
+            "Down",
+            "Up",
+            "Zero"
+        ));
+
+        MAKE_COMBO(yaw, "Yaw##anti-aim", 0, COMBO_LIST(
+            "Off",
+            "Backward",
+            "Spin"
+        ));
+
+        MAKE_COMBO(jitter, "Jitter##anti-aim", 0, COMBO_LIST(
+            "Off",
+            "Center",
+            "Offset",
+            "3-way",
+            "Spin"
+        ));
+
+        MAKE_SLIDER(jitterOffset, "Jitter offset##anti-aim", 0, -180, 180);
+        MAKE_SLIDER(yawOffset, "Yaw offset##anti-aim", 0, -180, 180);
+
+        MAKE_CHECKBOX(freestanding, "Freestanding##anti-aim", false);
+        MAKE_CHECKBOX(zeroOnPeek, "Pitch Zero on Peek##anti-aim", false);
+    };
+
+    MAKE_CHECKBOX(enable, "Enable##rage", true);
+    MAKE_CHECKBOX(autoRevolver, "Auto Revolver##rage", false);
+    MAKE_CHECKBOX(doubleTap, "Double Tap##rage", false);
+    MAKE_CHECKBOX(noSpread, "No Spread##rage", false);
+    MAKE_CHECKBOX(duckPeekAssist, "Duck peek assist##rage", false);
+
     MAKE_COMBO(configSelect, "Weapon Config##rage", 0, COMBO_LIST(
         "Global",
         "SCAR-20", 
@@ -90,6 +128,7 @@ struct RageTab
     ));
 
     WeaponConfig config[MAX_CONFIGS]{};
+    AntiAim antiAim{};
 };
 
 using itemsInMemoryList = std::vector<std::pair<void*, int>>;

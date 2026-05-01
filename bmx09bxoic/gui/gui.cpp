@@ -2,6 +2,8 @@
 #include <string>
 #include "gui.h"
 
+#include "../main/dllInstance.h"
+
 #include "../guiItems/items.h"
 #include "../config/config.h"
 
@@ -182,8 +184,6 @@ enum UI_TABS
 int tabSelection = 0;
 std::vector<std::string> tabs = { "Rage", "Legit", "Visuals", "Misc", "Skins", "Configs", "LUA" };
 
-std::vector<std::string> rageSubTab = { "Aim", "Anti-Aim" };
-
 // TO-DO:
 // subtabs
 // MAIN (with weapon config)
@@ -206,66 +206,92 @@ void renderSubTabs(const std::vector<std::string>& tabs, int& selection)
 
 void renderRageTab()
 {
-    static int subTabSelection = 0;
-    renderSubTabs(rageSubTab, subTabSelection);
+    ImVec2 weaponitemsChildSize = ImVec2(374, 440);
+    ImVec2 mainChildSize = ImVec2(weaponitemsChildSize.x, weaponitemsChildSize.y * 0.272f);
+    ImVec2 antiAimChildSize = ImVec2(weaponitemsChildSize.x, weaponitemsChildSize.y * 0.95f);
+    ImVec2 configChildSize = ImVec2(weaponitemsChildSize.x, 60);
 
-    ImVec2 itemsChildSize = ImVec2(374, 440);
-    ImVec2 configChildSize = ImVec2(374, 60);
-
-    switch (subTabSelection)
+    ImGui::BeginGroup();
     {
-    case 0:
-    {
-        ImGui::BeginChild("Main##rage", itemsChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
+        ImGui::BeginChild("Main##rage", mainChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
         {
-
+            checkbox::render(getMenuInstance().rage.enable);
+            checkbox::render(getMenuInstance().rage.autoRevolver);
+            checkbox::render(getMenuInstance().rage.doubleTap);
+            checkbox::render(getMenuInstance().rage.noSpread);
+            checkbox::render(getMenuInstance().rage.duckPeekAssist);
         }
         ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        ImGui::BeginGroup();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::BeginChild("Anti Aim##rage", antiAimChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
         {
-            ImGui::BeginChild("Weapon Config Selector##rage", configChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
-            {
-                ImGui::PushItemWidth(configChildSize.x * 0.958f);
-                combobox::render(getMenuInstance().rage.configSelect);
-                ImGui::PopItemWidth();
-            }
-            ImGui::EndChild();
-            ImGui::Spacing();
-            ImGui::BeginChild("Weapon Config##rage", itemsChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
-            {
-                auto& itemFromWeaponConfig = getMenuInstance().rage.config[getMenuInstance().rage.configSelect.item.value];
+            checkbox::render(getMenuInstance().rage.antiAim.enable);
+            checkbox::render(getMenuInstance().rage.antiAim.atTarget);
+            combobox::render(getMenuInstance().rage.antiAim.pitch);
+            combobox::render(getMenuInstance().rage.antiAim.yaw);
+            combobox::render(getMenuInstance().rage.antiAim.jitter);
+            slider::render(getMenuInstance().rage.antiAim.jitterOffset);
+            slider::render(getMenuInstance().rage.antiAim.yawOffset);
 
-                ImGui::PushItemWidth(configChildSize.x * 0.958f);
-                if (getMenuInstance().rage.configSelect.item.value != 0)
-                    checkbox::render(itemFromWeaponConfig.overrideGlobal);
+            ImGui::BeginGroup();
+            {
+                checkbox::render(getMenuInstance().rage.antiAim.freestanding);
+                ImGui::SameLine();
 
-                checkbox::render(itemFromWeaponConfig.autoFire);
-                checkbox::render(itemFromWeaponConfig.autoScope);
-                slider::render(itemFromWeaponConfig.fov);
-                multicombobox::render(itemFromWeaponConfig.hitBoxes);
-                multicombobox::render(itemFromWeaponConfig.multiPoints);
-                slider::render(itemFromWeaponConfig.pointHeadScale);
-                slider::render(itemFromWeaponConfig.pointBodyScale);
-                checkbox::render(itemFromWeaponConfig.preferBody);
-                slider::render(itemFromWeaponConfig.hitChance);
-                slider::render(itemFromWeaponConfig.minDamage);
-                multicombobox::render(itemFromWeaponConfig.quickStop);
-                ImGui::PopItemWidth();
+                if (ImGui::SmallButton("..."))
+                {
+                    ImGui::OpenPopup("freestand-popup");
+                }
+
+                if (ImGui::BeginPopup("freestand-popup"))
+                {
+                    checkbox::render(getMenuInstance().rage.antiAim.zeroOnPeek);
+                    ImGui::EndPopup();
+                }
             }
-            ImGui::EndChild();
+            ImGui::EndGroup();
         }
-        ImGui::EndGroup();
+        ImGui::EndChild();
     }
-    break;
-    case 1:
-    {
+    ImGui::EndGroup();
 
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    {
+        ImGui::BeginChild("Weapon Config Selector##rage", configChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
+        {
+            ImGui::PushItemWidth(configChildSize.x * 0.958f);
+            combobox::render(getMenuInstance().rage.configSelect);
+            ImGui::PopItemWidth();
+        }
+        ImGui::EndChild();
+        ImGui::Spacing();
+        ImGui::BeginChild("Weapon Config##rage", weaponitemsChildSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
+        {
+            auto& itemFromWeaponConfig = getMenuInstance().rage.config[getMenuInstance().rage.configSelect.item.value];
+
+            ImGui::PushItemWidth(configChildSize.x * 0.958f);
+            if (getMenuInstance().rage.configSelect.item.value != 0)
+                checkbox::render(itemFromWeaponConfig.overrideGlobal);
+
+            checkbox::render(itemFromWeaponConfig.autoFire);
+            checkbox::render(itemFromWeaponConfig.autoScope);
+            slider::render(itemFromWeaponConfig.fov);
+            multicombobox::render(itemFromWeaponConfig.hitBoxes);
+            multicombobox::render(itemFromWeaponConfig.multiPoints);
+            slider::render(itemFromWeaponConfig.pointHeadScale);
+            slider::render(itemFromWeaponConfig.pointBodyScale);
+            checkbox::render(itemFromWeaponConfig.preferBody);
+            slider::render(itemFromWeaponConfig.hitChance);
+            slider::render(itemFromWeaponConfig.minDamage);
+            multicombobox::render(itemFromWeaponConfig.quickStop);
+            ImGui::PopItemWidth();
+        }
+        ImGui::EndChild();
     }
-    break;
-    }
+    ImGui::EndGroup();
 }
 
 void renderLegitTab()
@@ -289,11 +315,20 @@ void renderSkinsTab()
 
 void renderConfigsTab()
 {
-    if (ImGui::SmallButton("Save"))
-        config::saveConfig();
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Load"))
-        config::loadConfig();
+    ImGui::BeginGroup();
+    {
+        if (ImGui::SmallButton("Save"))
+            config::saveConfig();
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Load"))
+            config::loadConfig();
+    }
+    ImGui::EndGroup();
+
+#ifdef _DEBUG
+    if (ImGui::SmallButton("Unload"))
+        getDllInstance().shouldQuit = true;
+#endif
 }
 
 void renderLUATab()
@@ -377,7 +412,7 @@ void Menu::initConfig()
         auto index = std::to_string(i);
         rage.config[i].autoFire = MAKE_CHECKBOX_RT("Auto Fire##rage" + index, false);
         rage.config[i].autoScope = MAKE_CHECKBOX_RT("Auto Scope##rage" + index, false);
-        rage.config[i].fov = MAKE_SLIDER_RT("Field of View##rage" + index, 0, 0, 180);
+        rage.config[i].fov = MAKE_SLIDER_RT("Field of View##rage" + index, 180, 0, 180);
         rage.config[i].hitBoxes = MAKE_MULTICOMBO_RT("Hit Boxes##rage" + index, 0, COMBO_LIST("Head", "Neck", "Chest", "Pelvis", "Stomach", "Arms", "Legs", "Feet"));
         rage.config[i].multiPoints = MAKE_MULTICOMBO_RT("Multi Points##rage" + index, 0, COMBO_LIST("Head", "Neck", "Chest", "Pelvis", "Stomach", "Arms", "Legs", "Feet"));
         rage.config[i].pointHeadScale = MAKE_SLIDER_RT("Head Scale##rage" + index, 0, 0, 100);
@@ -401,6 +436,11 @@ void Menu::initConfig()
         itemsInMemory.emplace_back(ITEM_PTR_RT(rage.config[i].overrideGlobal));
     }
 
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.enable));
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.autoRevolver));
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.doubleTap));
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.noSpread));
+    itemsInMemory.emplace_back(ITEM_PTR_RT(rage.duckPeekAssist));
     itemsInMemory.emplace_back(ITEM_PTR_RT(rage.configSelect));
 }
 }

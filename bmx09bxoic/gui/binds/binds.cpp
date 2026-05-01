@@ -1,8 +1,24 @@
 #include "binds.h"
 #include "../gui.h"
+#include "../../main/dllInstance.h"
 
 namespace gui::binds
 {
+void initCheatBind(bindList& list, int bindType)
+{
+    const auto bind = std::find_if(list.begin(), list.end(), [bindType](const std::shared_ptr<IKeyBind>& keyBind)
+        {
+            return keyBind->getItemType() == bindType;
+        });
+    
+    if (bind != list.end())
+    {
+        auto bindToUpdate = (*bind);
+        bindToUpdate->setOldValue();
+        bindToUpdate->updateNewValue();
+    }
+}
+
 void initBinds()
 {
     getMenuInstance().keyBindManager.init();
@@ -18,18 +34,9 @@ void initBinds()
     );
 
     auto& bindList = getMenuInstance().keyBindManager.getBindList();
-    const auto menuKey = std::find_if(bindList.begin(), bindList.end(), [](const std::shared_ptr<IKeyBind>& keyBind)
-        {
-            return keyBind->getKey() == VK_INSERT;
-        });
-
-    if (menuKey != bindList.end())
-    {
-        auto bindToUpdate = (*menuKey);
-        bindToUpdate->setOldValue();
-        bindToUpdate->updateNewValue();
-    }
+    initCheatBind(bindList, ITEM_UI_OPEN);
 }
+
 void destroyBinds()
 {
     getMenuInstance().keyBindManager.destroy();
