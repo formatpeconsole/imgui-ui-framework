@@ -54,3 +54,9 @@ extern void onResize();
 
 extern RenderInfo& getRenderInfoInstance();
 }
+
+namespace objRender
+{
+extern ImDrawList* getDrawList();
+extern void renderText(Font& font, ImVec2 pos, ImColor color, const char* string);
+}

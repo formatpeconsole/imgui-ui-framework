@@ -111,7 +111,7 @@ void init(IDXGISwapChain* pSwapChain)
     config.OversampleH = 3;
     config.OversampleV = 3;
 
-    getRenderInfoInstance().fonts[FONT_LOGO] = makeFont(io.Fonts, config, CheatFont_compressed_data, CheatFont_compressed_size, 26.f * DPI_SCALE);
+    getRenderInfoInstance().fonts[FONT_LOGO] = makeFont(io.Fonts, config, CheatFont_compressed_data, CheatFont_compressed_size, 33.f * DPI_SCALE);
     getRenderInfoInstance().fonts[FONT_ITEMS] = makeFont(io.Fonts, config, CheatFont_compressed_data, CheatFont_compressed_size, 20.f * DPI_SCALE);
     getRenderInfoInstance().fonts[FONT_WATERMARK] = makeFont(io.Fonts, config, CheatFont_compressed_data, CheatFont_compressed_size, 20.f * DPI_SCALE);
     getRenderInfoInstance().fonts[FONT_INFO] = makeFont(io.Fonts, config, CheatFont_compressed_data, CheatFont_compressed_size, 20.f * DPI_SCALE);
@@ -215,5 +215,21 @@ RenderInfo& getRenderInfoInstance()
 {
     static RenderInfo renderInfo;
     return renderInfo;
+}
+}
+
+namespace objRender
+{
+ImDrawList* getDrawList()
+{
+    return ImGui::GetBackgroundDrawList();
+}
+
+void renderText(Font& font, ImVec2 pos, ImColor color, const char* string)
+{
+    auto drawList = getDrawList();
+    drawList->PushTextureID(font.font->OwnerAtlas->TexID);
+    drawList->AddText(font.font, font.size, pos, color, string);
+    drawList->PopTextureID();
 }
 }
