@@ -6,7 +6,8 @@ namespace gui::framework
 class BindsWindow : public IWindow
 {
 public:
-    BindsWindow(std::string name, ImVec2 size) : name(name), size(size) {}
+    BindsWindow(std::string name, ImVec2 size) 
+        : name(name), size(size), prevDpiScale(1.f), prevBindCount(0) {}
 
     void init() override;
     void render() override;
@@ -21,5 +22,8 @@ private:
     std::string name{};
     ImVec2 pos{};
     ImVec2 size{};
+    float prevDpiScale{};
+    int prevBindCount{};
+    float keyBindsYPadding{};
 };
 }

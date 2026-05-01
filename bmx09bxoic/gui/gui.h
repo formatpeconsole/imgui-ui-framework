@@ -134,18 +134,20 @@ struct RageTab
 
 using itemsInMemoryList = std::list<std::pair<void*, int>>;
 
-using windowNamePos = std::pair<std::string, ImVec2>;
-using windowNamePosValue = std::optional<windowNamePos>;
-using lastPositionsList = std::list<windowNamePosValue>;
+using windowPosSizeAndScale = std::tuple<ImVec2, ImVec2, float>;
+using windowInfo = std::pair<std::string, windowPosSizeAndScale>;
+using windowInfoValue = std::optional<windowInfo>;
+using savedUiInfoList = std::list<windowInfoValue>;
 
 using windowsList = std::list<std::shared_ptr<framework::IWindow>>;
 
-struct MenuDpiManager
+struct WindowsManager
 {
-    lastPositionsList lastPositions{};
+    savedUiInfoList savedUiInfo{};
 
-    void saveUiPos(const std::string& name);
+    void saveUiPos(const std::string& name, float dpiScale);
     void correctSavedUIPos(const std::string& name);
+    void backupAllUiPositions(float dpiScale);
     void updateDpiScale();
 };
 
@@ -167,7 +169,7 @@ struct Menu
     RageTab rage{};
     itemsInMemoryList itemsInMemory{};
     KeyBindManager keyBindManager{};
-    MenuDpiManager dpiManager{};
+    WindowsManager windowsManager{};
 
     void initConfig();
     void initWindows();

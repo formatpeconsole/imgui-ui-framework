@@ -19,7 +19,7 @@ class MainWindow : public IWindow
 {
 public:
     MainWindow(tabsList tabs, std::string name, ImVec2 size)
-        : tabs(tabs), name(name), size(size), tabSelection(0) {}
+        : tabs(tabs), name(name), size(size), tabSelection(0), prevDpiScale(1.f) {}
 
     void init() override;
     void render() override;
@@ -36,5 +36,6 @@ private:
     ImVec2 pos{};
     ImVec2 size{};
     int tabSelection{};
+    float prevDpiScale{};
 };
 }

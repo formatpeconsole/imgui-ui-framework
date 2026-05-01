@@ -35,7 +35,40 @@ void destroy()
     getMenuInstance().windows.clear();
 }
 
-void MenuDpiManager::saveUiPos(const std::string& name)
+ImVec2 getClampedUiPosition(windowPosSizeAndScale posSizeAndScale)
+{
+    auto pos = std::get<0>(posSizeAndScale);
+    auto origSize = std::get<1>(posSizeAndScale);
+    auto scale = std::get<2>(posSizeAndScale);
+
+    float scaleStep = framework::DPI_SCALE / scale;
+    auto newSize = std::get<1>(posSizeAndScale) * scaleStep;
+
+    auto& screenSize = render::getRenderInfoInstance().screenSize;
+  
+    auto windowEdgeX = pos.x + origSize.x;
+    auto windowEdgeY = pos.y + origSize.y;
+
+    // ui got out from screen
+    if (pos.y < 0.f)
+        pos.y = 10.f;
+
+    if (pos.x < 0.f)
+        pos.x = 10.f;
+
+    // ui edge got out fom screen
+    // if X edge of window is too far
+    if (windowEdgeX > screenSize.x)
+        pos.x = screenSize.x - newSize.x - 10.f;
+
+    // if Y edge of window is too far
+    if (windowEdgeY > screenSize.y)
+        pos.y = screenSize.y - newSize.y - 10.f;
+
+    return pos;
+}
+
+void WindowsManager::saveUiPos(const std::string& name, float dpiScale)
 {
     auto& windows = getMenuInstance().windows;
     auto existingWindow = std::find_if(windows.begin(), windows.end(), [name](const std::shared_ptr<IWindow>& window) {
@@ -43,28 +76,41 @@ void MenuDpiManager::saveUiPos(const std::string& name)
     });
 
     if (existingWindow != windows.end())
-        lastPositions.emplace_back(std::make_pair(name, (*existingWindow)->getPos()));
+        savedUiInfo.emplace_back(std::make_pair(name, 
+            std::make_tuple(
+                (*existingWindow)->getPos(),
+                (*existingWindow)->getWindowSize(),
+                dpiScale
+            )));
 }
 
-void MenuDpiManager::correctSavedUIPos(const std::string& name)
+void WindowsManager::correctSavedUIPos(const std::string& name)
 {
-    if (lastPositions.empty())
+    if (savedUiInfo.empty())
         return;
 
-    auto existingUI = std::find_if(lastPositions.begin(), lastPositions.end(),
-        [name](const windowNamePosValue& item)
+    auto existingUI = std::find_if(savedUiInfo.begin(), savedUiInfo.end(),
+        [name](const windowInfoValue& item)
         {
             return item.has_value() && item->first == name;
         });
 
-    if (existingUI != lastPositions.end())
+    if (existingUI != savedUiInfo.end())
     {
-        ImGui::SetNextWindowPos(existingUI->value().second);
-        lastPositions.erase(existingUI);
+        auto clampedPosition = getClampedUiPosition(existingUI->value().second);
+        ImGui::SetNextWindowPos(clampedPosition);
+        savedUiInfo.erase(existingUI);
     }
 }
 
-void MenuDpiManager::updateDpiScale()
+void WindowsManager::backupAllUiPositions(float dpiScale)
+{
+    auto& windows = getMenuInstance().windows;
+    for (auto window : windows)
+        saveUiPos(window->getName(), dpiScale);
+}
+
+void WindowsManager::updateDpiScale()
 {
     static float prevDpi = 1.f;
 
@@ -86,9 +132,7 @@ void MenuDpiManager::updateDpiScale()
 
     if (prevDpi != framework::DPI_SCALE)
     {
-        auto& windows = getMenuInstance().windows;
-        for (auto& window : windows)
-            saveUiPos(window->getName());
+        backupAllUiPositions(prevDpi);
 
         render::getRenderInfoInstance().init = false;
         render::destroy();
@@ -100,7 +144,7 @@ void MenuDpiManager::updateDpiScale()
 void Menu::initWindows()
 {
     using namespace framework;
-    windows.emplace_back(std::make_shared<BindsWindow>("BIND LIST", ImVec2{}));
+    windows.emplace_back(std::make_shared<BindsWindow>("BIND LIST", BINDS_WINDOW_SIZE));
     windows.emplace_back(std::make_shared<MainWindow>(tabsList{
         "Rage",
         "Legit",

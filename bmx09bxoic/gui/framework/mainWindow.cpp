@@ -181,13 +181,21 @@ void MainWindow::render()
     if (!getMenuInstance().opened)
         return;
 
-    getMenuInstance().dpiManager.correctSavedUIPos(name);
-    ImGui::SetNextWindowSize(size * DPI_SCALE);
+    getMenuInstance().windowsManager.correctSavedUIPos(name);
+
+    if (prevDpiScale != DPI_SCALE)
+    {
+        float scaleStep = DPI_SCALE / prevDpiScale;
+
+        size *= scaleStep;
+        prevDpiScale = DPI_SCALE;
+    }
+
+    ImGui::SetNextWindowSize(size);
 
     render::pushFont(FONT_LOGO);
     ImGui::Begin(name.c_str(), &getMenuInstance().opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
     render::popFont();
-
     {
         using namespace gui::items;
         render::pushFont(FONT_ITEMS);
@@ -239,7 +247,8 @@ void MainWindow::render()
 void MainWindow::updateWindowPosOrSize()
 {
     const auto latestWindow = GImGui->Windows.back();
-    pos = latestWindow->Pos;
+    if (latestWindow != nullptr)
+        pos = latestWindow->Pos;
 }
 
 std::string MainWindow::getName()

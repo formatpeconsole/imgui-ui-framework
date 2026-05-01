@@ -128,6 +128,10 @@ void init(IDXGISwapChain* pSwapChain)
     RegisterHotKey(getRenderInfoInstance().cs2Window, 100, 0, VK_LMENU);
     RegisterHotKey(getRenderInfoInstance().cs2Window, 100, 0, VK_RMENU);
 
+    RECT clientRect{};
+    GetClientRect(getRenderInfoInstance().cs2Window, &clientRect);
+
+    getRenderInfoInstance().screenSize = ImVec2(clientRect.right, clientRect.bottom);
     getRenderInfoInstance().init = true;
 }
 
@@ -156,12 +160,13 @@ void destroy()
 
 void onResize()
 {
+    getMenuInstance().windowsManager.backupAllUiPositions(framework::DPI_SCALE);
     destroy();
 }
 
 void onRender(IDXGISwapChain* pSwapChain)
 {
-    getMenuInstance().dpiManager.updateDpiScale();
+    getMenuInstance().windowsManager.updateDpiScale();
 
     if (!getRenderInfoInstance().init)
         init(pSwapChain);

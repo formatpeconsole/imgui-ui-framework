@@ -34,6 +34,8 @@ struct RenderInfo
 
     HWND cs2Window = NULL;
     WNDPROC wndProcOrig = NULL;
+
+    ImVec2 screenSize{};
     bool init = false;
 };
 

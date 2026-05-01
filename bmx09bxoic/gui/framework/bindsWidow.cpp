@@ -122,8 +122,20 @@ void BindsWindow::init()
 
 void BindsWindow::render()
 {
-    getMenuInstance().dpiManager.correctSavedUIPos(name);
-    ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+    getMenuInstance().windowsManager.correctSavedUIPos(name);
+
+    if (prevDpiScale != DPI_SCALE)
+    {
+        float scaleStep = DPI_SCALE / prevDpiScale;
+
+        size *= scaleStep;
+        prevDpiScale = DPI_SCALE;
+    }
+
+    ImGui::SetNextWindowSize(size);
+
+    int bindCount = 0;
+    ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
     {
         auto& binds = getMenuInstance().keyBindManager.getBindList();
  
@@ -141,6 +153,7 @@ void BindsWindow::render()
             bool keyPressed = item->getType() == BIND_RELEASE ? !item->getPressed() : item->getPressed();
             if (keyPressed)
             {
+                ++bindCount;
                 noBinds = false;
 
                 // bind format would be:
@@ -157,13 +170,23 @@ void BindsWindow::render()
             ImGui::Text("No active binds found.");
     }
     ImGui::End();
+
+    if (prevBindCount != bindCount)
+    {
+        if (prevBindCount > bindCount)
+            size.y -= 12.f * (prevBindCount - bindCount);
+        else
+            size.y += 12.f * (bindCount - prevBindCount);
+
+        prevBindCount = bindCount;
+    }
 }
 
 void BindsWindow::updateWindowPosOrSize()
 {
     const auto latestWindow = GImGui->Windows.back();
-    pos = latestWindow->Pos;
-    size = latestWindow->Size;
+    if (latestWindow != nullptr)
+        pos = latestWindow->Pos;
 }
 
 std::string BindsWindow::getName()
