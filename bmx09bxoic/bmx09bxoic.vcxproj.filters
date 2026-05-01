@@ -28,7 +28,8 @@
     <ClCompile Include="utils\uuid.cpp" />
     <ClCompile Include="config\config.cpp" />
     <ClCompile Include="gui\binds\utils.cpp" />
-    <ClCompile Include="gui\framework\window.cpp" />
+    <ClCompile Include="gui\framework\mainWindow.cpp" />
+    <ClCompile Include="gui\framework\bindsWidow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="threadpool\threadpool.h" />
@@ -65,5 +66,7 @@
     <ClInclude Include="gui\binds\utils.h" />
     <ClInclude Include="gui\framework\window.h" />
     <ClInclude Include="render\fonts\iosevkaCharon.h" />
+    <ClInclude Include="gui\framework\bindsWindow.h" />
+    <ClInclude Include="gui\framework\mainWindow.h" />
   </ItemGroup>
 </Project>

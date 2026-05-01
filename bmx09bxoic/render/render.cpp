@@ -161,7 +161,7 @@ void onResize()
 
 void onRender(IDXGISwapChain* pSwapChain)
 {
-    gui::updateDpiScale();
+    getMenuInstance().dpiManager.updateDpiScale();
 
     if (!getRenderInfoInstance().init)
         init(pSwapChain);
@@ -195,8 +195,7 @@ void onRender(IDXGISwapChain* pSwapChain)
 
         ImGui::NewFrame();
 
-        gui::renderMainUI();
-        gui::renderBindsDebugWindow();
+        getMenuInstance().renderWindows();
 
         ImGui::EndFrame();
         ImGui::Render();

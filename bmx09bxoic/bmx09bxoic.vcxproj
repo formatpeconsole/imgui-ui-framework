@@ -112,7 +112,8 @@
     <ClCompile Include="deps\imguiFramework\imgui_widgets.cpp" />
     <ClCompile Include="gui\binds\binds.cpp" />
     <ClCompile Include="gui\binds\utils.cpp" />
-    <ClCompile Include="gui\framework\window.cpp" />
+    <ClCompile Include="gui\framework\bindsWidow.cpp" />
+    <ClCompile Include="gui\framework\mainWindow.cpp" />
     <ClCompile Include="gui\gui.cpp" />
     <ClCompile Include="hooks\hooks.cpp" />
     <ClCompile Include="in-game\sigs\sigs-handles.cpp" />
@@ -143,6 +144,8 @@
     <ClInclude Include="gui\binds\binds.h" />
     <ClInclude Include="gui\binds\binds-manager.h" />
     <ClInclude Include="gui\binds\utils.h" />
+    <ClInclude Include="gui\framework\bindsWindow.h" />
+    <ClInclude Include="gui\framework\mainWindow.h" />
     <ClInclude Include="gui\framework\window.h" />
     <ClInclude Include="gui\gui.h" />
     <ClInclude Include="gui\item.h" />

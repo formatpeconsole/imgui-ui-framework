@@ -10,6 +10,7 @@
 
 #include "../render/render.h"
 #include "binds/binds.h"
+#include "framework/window.h"
 #include "item.h"
 
 #undef min
@@ -131,11 +132,22 @@ struct RageTab
     AntiAim antiAim{};
 };
 
-using itemsInMemoryList = std::vector<std::pair<void*, int>>;
+using itemsInMemoryList = std::list<std::pair<void*, int>>;
 
 using windowNamePos = std::pair<std::string, ImVec2>;
 using windowNamePosValue = std::optional<windowNamePos>;
 using lastPositionsList = std::list<windowNamePosValue>;
+
+using windowsList = std::list<std::shared_ptr<framework::IWindow>>;
+
+struct MenuDpiManager
+{
+    lastPositionsList lastPositions{};
+
+    void saveUiPos(const std::string& name);
+    void correctSavedUIPos(const std::string& name);
+    void updateDpiScale();
+};
 
 struct Menu
 {
@@ -143,7 +155,7 @@ struct Menu
     bool opened = false;
     bool newOpened = true;
 
-    lastPositionsList lastPositions{};
+    windowsList windows{};
 
     MAKE_COMBO(dpiScale, "DPI Scale##ui", 0, COMBO_LIST(
         "100%",
@@ -152,19 +164,22 @@ struct Menu
         "200%"
     ));
 
-    RageTab rage;
+    RageTab rage{};
     itemsInMemoryList itemsInMemory{};
     KeyBindManager keyBindManager{};
+    MenuDpiManager dpiManager{};
 
     void initConfig();
+    void initWindows();
+    void renderWindows();
+    void destroyWindows();
 };
 
 extern void init();
 extern void updateDpiScale();
 extern void destroy();
 
-extern void renderBindsDebugWindow();
-extern void renderMainUI();
+extern void renderUI();
 
 extern Menu& getMenuInstance();
 }

@@ -11,7 +11,7 @@ namespace gui::items
 // but ##rage is used just to make unique hash
 // so for UI Bind list better visualize name without this unique hash
 // in result it will be "Hit Chance"
-std::string getFormattedText(const std::string& text)
+inline std::string getFormattedText(const std::string& text)
 {
     size_t pos = text.find("##");
     if (pos == std::string::npos)

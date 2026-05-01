@@ -14,15 +14,18 @@
 
 namespace gui::framework
 {
-inline const auto WINDOW_SIZE = ImVec2(713.f, 524.f);
+inline const auto MAIN_WINDOW_SIZE = ImVec2(713.f, 524.f);
 inline auto DPI_SCALE = 1.f;
 
-class Window
+class IWindow
 {
 public:
-private:
-
+    virtual void init() = 0;
+    virtual void render() = 0;
+    virtual void updateWindowPosOrSize() = 0;
+    virtual std::string getName() = 0;
+    virtual ImVec2 getPos() = 0;
+    virtual ImVec2 getWindowSize() = 0;
 };
-
 
 }
