@@ -18,6 +18,8 @@ struct tabAnimation
 {
     ImVec4 radioButton{};
     ImVec4 text{};
+
+    float radioGlowAlpha{};
 };
 
 using tabsList = std::vector<std::string>;

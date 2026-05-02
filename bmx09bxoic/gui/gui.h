@@ -159,7 +159,8 @@ struct Menu
 
     windowsList windows{};
 
-    MAKE_COMBO(dpiScale, "DPI Scale##ui", 0, COMBO_LIST(
+    MAKE_COMBO(dpiScale, "DPI Scale##ui", 1, COMBO_LIST(
+        "75%",
         "100%",
         "125%",
         "150%",

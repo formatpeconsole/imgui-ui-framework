@@ -16,7 +16,8 @@ using namespace framework;
 
 enum DPI_SCALE_AMOUNT
 {
-    DPI_100 = 0,
+    DPI_75 = 0,
+    DPI_100,
     DPI_125,
     DPI_150,
     DPI_200
@@ -116,6 +117,9 @@ void WindowsManager::updateDpiScale()
 
     switch (getMenuInstance().dpiScale.item.value)
     {
+    case DPI_75:
+        framework::DPI_SCALE = 1.f;
+        break;
     case DPI_100:
         framework::DPI_SCALE = 1.f;
         break;
