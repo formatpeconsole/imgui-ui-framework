@@ -22,6 +22,22 @@ struct tabAnimation
     float radioGlowAlpha{};
 };
 
+struct tabSelectionAnimation
+{
+    float yPos{};
+
+    ImVec2 base{ 119.f, 87.f };
+    ImVec2 first{ 50.f, 0.f };
+    ImVec2 second{ 62.f, 7.f };
+    ImVec2 third{ 50.f, 14.f };
+};
+
+struct mainPositions
+{
+    ImVec2 baseTabs{ 34.f, 84.f };
+    ImVec2 logo{ 33.f, 22.f };
+};
+
 using tabsList = std::vector<std::string>;
 using tabAnimationsList = std::vector<tabAnimation>;
 
@@ -52,6 +68,9 @@ private:
     std::unordered_map<void*, std::pair<void*, int>> items{};
     tabAnimationsList tabsAnimations{};
     tabsList tabs{};
+
+    tabSelectionAnimation tabSelectionAnim{};
+    mainPositions mainPos;
 
     std::string name{};
     ImVec2 pos{};

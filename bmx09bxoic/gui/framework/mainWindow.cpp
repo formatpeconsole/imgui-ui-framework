@@ -258,7 +258,7 @@ std::string MainWindow::getBuildDate()
 void MainWindow::renderLogo()
 {
     auto pos = ImGui::GetWindowPos();
-    ImVec2 logoPos = pos + ImVec2(33.f, 22.f) * DPI_SCALE;
+    ImVec2 logoPos = pos + mainPos.logo * DPI_SCALE;
 
     objRender::renderText(render::getFont(FONT_LOGO), logoPos, ImColor(255, 255, 255, getMainAlpha()), name.c_str());
 }
@@ -275,7 +275,7 @@ void MainWindow::renderBottomInfo()
 
 void MainWindow::renderTabs()
 {
-    ImGui::SetCursorPos(ImVec2(34.f, 84.f) * DPI_SCALE);
+    ImGui::SetCursorPos(mainPos.baseTabs * DPI_SCALE);
     ImGui::BeginGroup();
     {
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
@@ -293,13 +293,19 @@ void MainWindow::renderTabs()
 
         auto drawList = objRender::getDrawList();
 
-        float selectionPosY = tabSelection * 40.f;
-        auto pos = ImGui::GetWindowPos() + ImVec2(119.f, 87.f + selectionPosY) * DPI_SCALE;
+        float selectionPosY = static_cast<float>(tabSelection) * 36.f * DPI_SCALE;
+        tabSelectionAnim.yPos = std::lerp(tabSelectionAnim.yPos, selectionPosY, 0.1f);
 
-        ImVec2 first = pos + ImVec2(50.f, 0.f) * DPI_SCALE;
-        ImVec2 second = pos + ImVec2(62.f, 7.f) * DPI_SCALE;
-        ImVec2 third = pos + ImVec2(50.f, 14.f) * DPI_SCALE;
-        drawList->AddTriangleFilled(first, second, third, MAIN_WINDOW_ACCENT_COLOR);
+        auto pos = ImGui::GetWindowPos() + (tabSelectionAnim.base + ImVec2(0.f, tabSelectionAnim.yPos)) * DPI_SCALE;
+
+        ImVec2 first = pos + tabSelectionAnim.first * DPI_SCALE;
+        ImVec2 second = pos + tabSelectionAnim.second * DPI_SCALE;
+        ImVec2 third = pos + tabSelectionAnim.third * DPI_SCALE;
+
+        ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
+        newClr.Value.w = static_cast<float>(mainAlpha) / 255.f;
+
+        drawList->AddTriangleFilled(first, second, third, newClr);
 
         ImGui::PopFont();
     }
