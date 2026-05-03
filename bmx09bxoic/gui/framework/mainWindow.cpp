@@ -287,8 +287,8 @@ void MainWindow::renderTabs()
         float dummyYSize = 12.f * DPI_SCALE;
         for (int i = 0; i < tabs.size(); ++i)
         {
-            auto tabName = tabs[i].first;
-            float buttonXSize = static_cast<float>(tabs[i].first.length() * 11) * DPI_SCALE;
+            auto tabName = tabs[i].name;
+            float buttonXSize = static_cast<float>(tabName.length() * 11) * DPI_SCALE;
 
             if (i == tabSelection)
             {
@@ -351,8 +351,8 @@ void MainWindow::renderTabsContents()
 {
     auto& selectedTab = tabs[tabSelection];
 
-    float yPos = selectedTab.second ? 56.f : 23.f;
-    float ySize = selectedTab.second ? 444.f : 477.f;
+    float yPos = selectedTab.haveSubTabs ? 56.f : 23.f;
+    float ySize = selectedTab.haveSubTabs ? 444.f : 477.f;
 
     if (tabContentsAnim.yPos == 0.f)
         tabContentsAnim.yPos = yPos;

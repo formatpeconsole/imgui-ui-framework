@@ -47,7 +47,21 @@ struct tabContentsAnimation
     float ySize{};
 };
 
-using tabItself = std::pair<std::string, bool>;
+struct subTab
+{
+    std::string name{};
+    int selection{};
+
+    subTab(std::string name) : name(name), selection(0) {}
+};
+
+struct tabItself
+{
+    std::vector<subTab> subTabs{};
+    std::string name{};
+    bool haveSubTabs = false;
+};
+
 using tabsList = std::vector<tabItself>;
 using tabAnimationsList = std::vector<tabAnimation>;
 
