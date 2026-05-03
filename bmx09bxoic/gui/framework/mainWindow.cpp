@@ -278,10 +278,6 @@ void MainWindow::renderTabs()
     ImGui::SetCursorPos(mainPos.baseTabs * DPI_SCALE);
     ImGui::BeginGroup();
     {
-        // used for tab selection
-        if (tabSelectionAnim.yPos == 0.f)
-            tabSelectionAnim.yPos = (tabSelectionAnim.base.y) * DPI_SCALE;
-
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
 
         int mainAlpha = getMainAlpha();
@@ -293,7 +289,12 @@ void MainWindow::renderTabs()
             float buttonXSize = static_cast<float>(tabs[i].length() * 11) * DPI_SCALE;
 
             if (i == tabSelection)
+            {
                 tabSelectionAnim.beginPosY = ImGui::GetCursorPosY();
+
+                if (tabSelectionAnim.yPos == 0.f)
+                    tabSelectionAnim.yPos = tabSelectionAnim.beginPosY + 3.f * DPI_SCALE;
+            }
 
             if (tabButton(tabs[i].c_str(), ImVec2(buttonXSize, buttonYSize), i == tabSelection, tabsAnimations[i], mainAlpha))
                 tabSelection = i;
@@ -344,11 +345,31 @@ void MainWindow::renderTabs()
     ImGui::EndGroup();
 }
 
+void MainWindow::renderTabsContents()
+{
+    auto pos = mainPos.baseTabsContents * DPI_SCALE;
+    ImGui::SetCursorPos(mainPos.baseTabsContents * DPI_SCALE);
+    ImGui::BeginGroup();
+    {
+        auto currentPos = ImGui::GetWindowPos() + pos;
+        auto childSize = ImVec2(479.f, 444.f) * DPI_SCALE;
+
+        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize, ImGuiChildFlags_Borders);
+        {
+            auto drawList = objRender::getDrawList();
+            drawList->AddRectFilled(currentPos, currentPos + childSize, ImColor(29, 29, 29, getMainAlpha()), 17.f);
+
+            combobox::render(getMenuInstance().dpiScale);
+        }
+        ImGui::EndChild();
+    }
+    ImGui::EndGroup();
+}
+
 void MainWindow::renderWindowContents()
 {
-    {
-        renderTabs();
-    }
+    renderTabs();
+    renderTabsContents();
 
     renderLogo();
     renderBottomInfo();
@@ -356,7 +377,8 @@ void MainWindow::renderWindowContents()
 
 void MainWindow::init()
 {
-
+    tabSelectionAnim.yPos = 0.f;
+    tabSelectionAnim.xPos = 0.f;
 }
 
 void MainWindow::render()

@@ -108,12 +108,15 @@ void WindowsManager::backupAllUiPositions(float dpiScale)
 {
     auto& windows = getMenuInstance().windows;
     for (auto window : windows)
+    {
+        window->init();
         saveUiPos(window->getName(), dpiScale);
+    }
 }
 
 void WindowsManager::updateDpiScale()
 {
-    /*static float prevDpi = 1.f;
+    static float prevDpi = 1.f;
 
     switch (getMenuInstance().dpiScale.item.value)
     {
@@ -142,7 +145,7 @@ void WindowsManager::updateDpiScale()
         render::destroy();
         render::clearRenderTargetView();
         prevDpi = framework::DPI_SCALE;
-    }*/
+    }
 }
 
 void Menu::initWindows()

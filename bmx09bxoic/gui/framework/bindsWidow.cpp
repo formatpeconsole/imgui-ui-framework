@@ -115,6 +115,8 @@ std::string getBindValueFromString(const std::string& value, void* ptr, int item
 
 void BindsWindow::init()
 {
+    items.clear();
+
     auto& itemsInMemory = getMenuInstance().itemsInMemory;
     for (auto& i : itemsInMemory)
         items[getItemValuePointerFromItemPointer(i.first, i.second)] = std::make_pair(i.first, i.second);

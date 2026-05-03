@@ -37,6 +37,7 @@ struct tabSelectionAnimation
 struct mainPositions
 {
     ImVec2 baseTabs{ 34.f, 84.f };
+    ImVec2 baseTabsContents{ 205.f, 56.f };
     ImVec2 logo{ 33.f, 22.f };
 };
 
@@ -59,6 +60,7 @@ public:
 private:
     void renderWindowContents();
     void renderTabs();
+    void renderTabsContents();
     void renderLogo();
     void renderBottomInfo();
 
