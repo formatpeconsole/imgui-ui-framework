@@ -172,7 +172,7 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
     const ImVec2 label_size = ImGui::CalcTextSize(name, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
-    ImVec2 size = ImGui::CalcItemSize(sizeArg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+    ImVec2 size = sizeArg;
 
     const ImRect bb(pos, pos + size);
     ImGui::ItemSize(size, style.FramePadding.y);
@@ -195,17 +195,17 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
     animation.text = ImLerp(animation.text, baseColor.Value, 0.1f);
     animation.radioGlowAlpha = std::lerp(animation.radioGlowAlpha, active ? 1.0f : 0.0f, 0.2f);
 
-    auto basePos = pos + ImVec2(3.f, 10.f) * DPI_SCALE;
+    auto basePos = pos + ImVec2(4.f, 10.f) * DPI_SCALE;
     auto drawList = objRender::getDrawList();
     if (animation.radioGlowAlpha > 0.0f)
     {
-        int maxRange = 15;
+        const int maxRange = 15;
         float windowAlpha = static_cast<float>(mainAlpha) / 255.f;
         ImColor radioColor = animation.radioButton;
         for (int i = 0; i < maxRange; ++i)
         {
             float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
-            int alphaStep = std::lerp(20, 0, step);
+            float alphaStep = std::lerp(20.f, 0.f, step);
             int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
 
             float radius = std::lerp(3.5f, 10.f, step) * animation.radioGlowAlpha * DPI_SCALE;
@@ -217,7 +217,7 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
 
     drawList->AddCircleFilled(basePos, 3.5f * DPI_SCALE, ImColor(animation.radioButton));
      
-    auto textPos = pos + ImVec2(20.f, 0.f) * DPI_SCALE;
+    auto textPos = pos + ImVec2(21.f, 0.f) * DPI_SCALE;
     objRender::renderText(render::getFont(FONT_ITEMS), textPos, ImColor(animation.text), name);
 
    // drawList->AddRect(pos, pos + size, ImColor(255, 255, 255, 255));
@@ -278,34 +278,66 @@ void MainWindow::renderTabs()
     ImGui::SetCursorPos(mainPos.baseTabs * DPI_SCALE);
     ImGui::BeginGroup();
     {
+        // used for tab selection
+        if (tabSelectionAnim.yPos == 0.f)
+            tabSelectionAnim.yPos = (tabSelectionAnim.base.y) * DPI_SCALE;
+
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
 
         int mainAlpha = getMainAlpha();
+
+        float buttonYSize = 20.f * DPI_SCALE;
+        float dummyYSize = 12.f * DPI_SCALE;
         for (int i = 0; i < tabs.size(); ++i)
         {
             float buttonXSize = static_cast<float>(tabs[i].length() * 11) * DPI_SCALE;
 
-            if (tabButton(tabs[i].c_str(), ImVec2(buttonXSize, 20.f * DPI_SCALE), i == tabSelection, tabsAnimations[i], mainAlpha))
+            if (i == tabSelection)
+                tabSelectionAnim.beginPosY = ImGui::GetCursorPosY();
+
+            if (tabButton(tabs[i].c_str(), ImVec2(buttonXSize, buttonYSize), i == tabSelection, tabsAnimations[i], mainAlpha))
                 tabSelection = i;
-            
-            ImGui::Dummy({0.f, 12.f * DPI_SCALE});
+
+            ImGui::Dummy({ 0.f, dummyYSize });
         }
 
+        float triangleButtonCenterPosY = tabSelectionAnim.beginPosY + 3.f * DPI_SCALE;
+        tabSelectionAnim.xPos = tabSelectionAnim.base.x * DPI_SCALE;
+        tabSelectionAnim.yPos = std::lerp(tabSelectionAnim.yPos, triangleButtonCenterPosY, 0.1f);
+
         auto drawList = objRender::getDrawList();
+        auto pos = ImGui::GetWindowPos() + ImVec2(tabSelectionAnim.xPos, tabSelectionAnim.yPos);
 
-        float selectionPosY = static_cast<float>(tabSelection) * 36.f * DPI_SCALE;
-        tabSelectionAnim.yPos = std::lerp(tabSelectionAnim.yPos, selectionPosY, 0.1f);
+        // tab selection ( RAGE > )
+        // shadow
+        {
+            ImVec2 center = pos + (tabSelectionAnim.first + tabSelectionAnim.second + tabSelectionAnim.third) * (1.f / 3.f) * DPI_SCALE;
+            const int maxRange = 19;
 
-        auto pos = ImGui::GetWindowPos() + (tabSelectionAnim.base + ImVec2(0.f, tabSelectionAnim.yPos)) * DPI_SCALE;
+            ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
+            for (int i = 0; i < maxRange; ++i)
+            {
+                float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
+                float alphaStep = std::lerp(30.f, 0.f, step);
+                int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
 
-        ImVec2 first = pos + tabSelectionAnim.first * DPI_SCALE;
-        ImVec2 second = pos + tabSelectionAnim.second * DPI_SCALE;
-        ImVec2 third = pos + tabSelectionAnim.third * DPI_SCALE;
+                float radius = std::lerp(3.5f, static_cast<float>(maxRange) - 5.f, step) * DPI_SCALE;
+                newClr.Value.w = (static_cast<float>(bgAlpha) / 255.f);
+                drawList->AddCircle(center, radius, newClr);
+            }
+        }
 
-        ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
-        newClr.Value.w = static_cast<float>(mainAlpha) / 255.f;
+        // selection
+        {
+            ImVec2 first = pos + tabSelectionAnim.first * DPI_SCALE;
+            ImVec2 second = pos + tabSelectionAnim.second * DPI_SCALE;
+            ImVec2 third = pos + tabSelectionAnim.third * DPI_SCALE;
 
-        drawList->AddTriangleFilled(first, second, third, newClr);
+            ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
+            newClr.Value.w = static_cast<float>(mainAlpha) / 255.f;
+
+            drawList->AddTriangleFilled(first, second, third, newClr);
+        }
 
         ImGui::PopFont();
     }
@@ -385,12 +417,12 @@ void MainWindow::render()
 
         // bg border
         {
-            // border dropshadow
-            const int max = 10;
+            // border shadow
+            const int max = static_cast<int>(10.f * DPI_SCALE);
             for (int i = 0; i < max; ++i)
             {
                 float step = (static_cast<float>(i) / static_cast<float>(max - 1));
-                int alphaStep = std::lerp(80, 0, step);
+                float alphaStep = std::lerp(30.f, 0.f, step);
                 int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
 
                 float offsetStep = 2.f + 1.f * static_cast<float>(i);

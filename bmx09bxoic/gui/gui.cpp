@@ -155,7 +155,7 @@ void Menu::initWindows()
         "Visuals",
         "Miscellaneous", 
         "Skin-changer", 
-        "Configurations", 
+        "Configs", 
         "LUA-scripts" 
     }, "BMX09BXOIC", MAIN_WINDOW_SIZE));
 

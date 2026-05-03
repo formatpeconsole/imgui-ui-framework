@@ -24,7 +24,9 @@ struct tabAnimation
 
 struct tabSelectionAnimation
 {
-    float yPos{};
+    float xPos{};
+    float yPos{ 0.f };
+    float beginPosY{};
 
     ImVec2 base{ 119.f, 87.f };
     ImVec2 first{ 50.f, 0.f };
