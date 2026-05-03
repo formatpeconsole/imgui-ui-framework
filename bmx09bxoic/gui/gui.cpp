@@ -153,13 +153,13 @@ void Menu::initWindows()
     using namespace framework;
     windows.emplace_back(std::make_shared<BindsWindow>("BIND LIST", BINDS_WINDOW_SIZE));
     windows.emplace_back(std::make_shared<MainWindow>(tabsList{
-        "Ragebot",
-        "Legitbot",
-        "Visuals",
-        "Miscellaneous", 
-        "Skin-changer", 
-        "Configs", 
-        "LUA-scripts" 
+        tabItself{"Ragebot", true},
+        tabItself{"Legitbot", false},
+        tabItself{"Visuals", true},
+        tabItself{"Miscellaneous", true},
+        tabItself{"Skin-changer", true},
+        tabItself{"Configs", false},
+        tabItself{"LUA-scripts" , false},
     }, "BMX09BXOIC", MAIN_WINDOW_SIZE));
 
     for (auto window : windows)

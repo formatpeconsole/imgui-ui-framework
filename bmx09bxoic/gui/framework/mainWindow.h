@@ -41,7 +41,14 @@ struct mainPositions
     ImVec2 logo{ 33.f, 22.f };
 };
 
-using tabsList = std::vector<std::string>;
+struct tabContentsAnimation
+{
+    float yPos{};
+    float ySize{};
+};
+
+using tabItself = std::pair<std::string, bool>;
+using tabsList = std::vector<tabItself>;
 using tabAnimationsList = std::vector<tabAnimation>;
 
 class MainWindow : public IWindow
@@ -75,11 +82,12 @@ private:
 
     tabSelectionAnimation tabSelectionAnim{};
     mainPositions mainPos;
+    tabContentsAnimation tabContentsAnim{};
+    int tabSelection{};
 
     std::string name{};
     ImVec2 pos{};
     ImVec2 size{};
-    int tabSelection{};
     float prevDpiScale{};
     float windowAlpha{};
 };
