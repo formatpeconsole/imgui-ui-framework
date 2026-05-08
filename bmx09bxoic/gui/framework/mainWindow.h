@@ -1,5 +1,6 @@
 #pragma once
 #include "window.h"
+#include "../../render/animation/animation.h"
 
 namespace gui::framework
 {
@@ -47,6 +48,9 @@ struct tabContentsAnimation
 {
     float yPos{};
     float ySize{};
+
+    render::Animation yPosAnimation{ 23.f, 56.f, 0.5f, render::ANIMATION_EASE_OUT_EXPO };
+    render::Animation ySizeAnimation{ 477.f, 444.f, 0.5f, render::ANIMATION_EASE_OUT_EXPO };
 };
 
 struct subTab
@@ -109,7 +113,7 @@ private:
     mainPositions mainPos;
     tabContentsAnimation tabContentsAnim{};
     int tabSelection{};
-    float subTabAnimation{};
+    int oldTabSelection{};
 
     std::string name{};
     ImVec2 pos{};

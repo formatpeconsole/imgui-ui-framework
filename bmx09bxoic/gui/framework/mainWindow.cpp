@@ -353,42 +353,24 @@ void MainWindow::renderTabsContents()
     // depends on which tab have subtabs
     auto& selectedTab = tabs[tabSelection];
 
-    float yBasePos = selectedTab.haveSubTabs ? 56.f : 23.f;
-    float yBaseSize = selectedTab.haveSubTabs ? 444.f : 477.f;
+    tabContentsAnim.yPosAnimation.setCondition(selectedTab.haveSubTabs);
+    tabContentsAnim.ySizeAnimation.setCondition(selectedTab.haveSubTabs);
 
-    if (tabContentsAnim.yPos == 0.f)
-        tabContentsAnim.yPos = yBasePos;
-    else
-        tabContentsAnim.yPos = std::lerp(tabContentsAnim.yPos, yBasePos, 0.1f);
+    tabContentsAnim.yPosAnimation.process();
+    tabContentsAnim.ySizeAnimation.process();
 
-    if (tabContentsAnim.ySize == 0.f)
-        tabContentsAnim.ySize = yBaseSize;
-    else
-        tabContentsAnim.ySize = std::lerp(tabContentsAnim.ySize, yBaseSize, 0.1f);
+    tabContentsAnim.yPos = tabContentsAnim.yPosAnimation.getAnimatedValue();
+    tabContentsAnim.ySize = tabContentsAnim.ySizeAnimation.getAnimatedValue();
 
     mainPos.baseTabsContents.y = static_cast<float>(static_cast<int>(tabContentsAnim.yPos));
-
-    float deltaTime = math::roundFloat(ImGui::GetIO().DeltaTime * 15.f, 2) + 0.005f;
-    if (selectedTab.haveSubTabs)
-    {
-        if (subTabAnimation < 1.f)
-            subTabAnimation += deltaTime;
-    }
-    else
-    {
-        if (subTabAnimation > 0.f)
-            subTabAnimation -= deltaTime;
-    }
-
-    subTabAnimation = std::clamp(subTabAnimation, 0.0f, 1.0f);
 
     auto subTabsCursorPos = mainPos.baseSubTabsContents * DPI_SCALE;
     ImGui::SetCursorPos(subTabsCursorPos);
     ImGui::BeginGroup();
     {
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
-
-        int mainAlpha = static_cast<int>(windowAlpha * subTabAnimation * 255.f);
+        
+        int mainAlpha = getMainAlpha();
 
         float buttonYSize = 20.f * DPI_SCALE;
         float buttonXSpacing = 29.f * DPI_SCALE;
@@ -420,7 +402,7 @@ void MainWindow::renderTabsContents()
     ImGui::BeginGroup();
     {
         auto currentPos = ImGui::GetWindowPos() + cursorPos;
-        auto childSize = ImVec2(479.f, tabContentsAnim.ySize) * DPI_SCALE;
+        auto childSize = ImVec2(479.f, static_cast<float>(static_cast<int>(tabContentsAnim.ySize))) * DPI_SCALE;
 
         ImGui::BeginChild("MainTabs##bmx09bxoic", childSize, ImGuiChildFlags_Borders);
         {
