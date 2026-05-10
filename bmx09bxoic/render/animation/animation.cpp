@@ -48,8 +48,9 @@ float getAnimatedProgress(AnimationWay way, float t)
     }
 }
 
-Animation::Animation(float start, float end, float duration, AnimationWay way)
-    : start(start), end(end), begin(0.f), animatedValue(0.f), duration(duration), animationWay(way) {}
+Animation::Animation(float start, float end, float duration, AnimationWay way, uintptr_t flags)
+    : start(start), end(end), begin(0.f), animatedValue(0.f), animationProgress(1.f),
+    duration(duration), animationWay(way), animationFlags(flags) {}
 
 void Animation::setCondition(bool triggerCondition)
 {
@@ -62,27 +63,36 @@ void Animation::process()
 
     if (previousCondition != condition)
     {
-        begin = animatedValue;
         timeOnTrigger = now;
         animationProgress = 0.f;
         previousCondition = condition;
+
+        if ((animationFlags & ANIMATION_FLAGS_RESET_TO_START))
+            animatedValue = start;
+        else if ((animationFlags & ANIMATION_FLAGS_RESET_TO_END))
+            animatedValue = end;
+
+        begin = animatedValue;
+  
+
         return;
     }
 
-    if (animationProgress < 1.f)
+    if ((animationFlags & ANIMATION_FLAGS_INIT_ON_START) && !initialized)
     {
-        std::chrono::duration<float> elapsed = now - timeOnTrigger;
-        animationProgress = elapsed.count() / duration;
-        animationProgress = std::clamp(animationProgress, 0.f, 1.f);
-
-        if (animatedValue == 0.f && begin == 0.f)
+        if ((animatedValue == 0.f && begin == 0.f))
         {
             animatedValue = begin = condition ? end : start;
+            initialized = true;
         }
-
-        float progress = getAnimatedProgress(animationWay, animationProgress);
-        animatedValue = std::lerp(begin, condition ? end : start, progress);
     }
+
+    std::chrono::duration<float> elapsed = now - timeOnTrigger;
+    animationProgress = elapsed.count() / duration;
+    animationProgress = std::clamp(animationProgress, 0.f, 1.f);
+
+    float progress = getAnimatedProgress(animationWay, animationProgress);
+    animatedValue = std::lerp(begin, condition ? end : start, progress);
 }
 
 float Animation::getAnimatedValue()

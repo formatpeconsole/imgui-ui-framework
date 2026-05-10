@@ -17,10 +17,11 @@ enum UI_TABS
 
 struct tabAnimation
 {
-    ImVec4 radioButton{};
-    ImVec4 text{};
+    ImVec4 radioButton{ 0.0f, 0.0f, 0.0f, 0.0f };
+    ImVec4 text{ 0.0f, 0.0f, 0.0f, 0.0f };
 
-    float radioGlowAlpha{};
+    render::Animation radioAnimation{ 0.f, 100.f, 0.15f, render::ANIMATION_EASE_OUT_EXPO, render::ANIMATION_FLAGS_INIT_ON_START };
+    float radioGlowAlpha{ 0.f };
 };
 using tabAnimationsList = std::vector<tabAnimation>;
 
@@ -49,8 +50,9 @@ struct tabContentsAnimation
     float yPos{};
     float ySize{};
 
-    render::Animation yPosAnimation{ 23.f, 56.f, 0.5f, render::ANIMATION_EASE_OUT_EXPO };
-    render::Animation ySizeAnimation{ 477.f, 444.f, 0.5f, render::ANIMATION_EASE_OUT_EXPO };
+    render::Animation yPosAnimation{ 23.f, 56.f, 0.45f, render::ANIMATION_EASE_OUT_EXPO, render::ANIMATION_FLAGS_INIT_ON_START };
+    render::Animation ySizeAnimation{ 477.f, 444.f, 0.45f, render::ANIMATION_EASE_OUT_EXPO, render::ANIMATION_FLAGS_INIT_ON_START };
+    render::Animation selectedTabAnimation{ 0.f, 100.f, 0.45f, render::ANIMATION_EASE_OUT_EXPO, render::ANIMATION_FLAGS_INIT_ON_START | render::ANIMATION_FLAGS_RESET_TO_START };
 };
 
 struct subTab
@@ -112,6 +114,8 @@ private:
     tabSelectionAnimation tabSelectionAnim{};
     mainPositions mainPos;
     tabContentsAnimation tabContentsAnim{};
+
+    render::Animation uiOpenAnimation{ 0.f, 100.f, 0.1f, render::ANIMATION_EASE_OUT_QUAD, render::ANIMATION_FLAGS_NONE };
     int tabSelection{};
     int oldTabSelection{};
 

@@ -163,6 +163,19 @@ void renderLUATab()
 {
 }
 
+ImVec4 interpolateWithoutAlpha(const ImVec4& start, const ImVec4& end, float step, float mainAlpha)
+{
+    if (start.isEmpty())
+        return ImVec4(end.x, end.y, end.z, mainAlpha);
+    else
+    {
+        return ImVec4(start.x + (end.x - start.x) * step,
+            start.y + (end.y - start.y) * step,
+            start.z + (end.z - start.z) * step,
+            mainAlpha);
+    }
+}
+
 bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& animation, int mainAlpha)
 {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -182,45 +195,53 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
     bool hovered{}, held{};
     bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, 0);
 
-    ImColor baseColor{};
-    float colorAdd = (static_cast<float>(hovered) + static_cast<float>(held)) * 0.15f;
-    float mainColor = active ? 1.f : 0.68f + colorAdd;
-    baseColor.Value.x = baseColor.Value.y = baseColor.Value.z = mainColor;
-    baseColor.Value.w = static_cast<float>(mainAlpha) / 255.f;
-
-    ImColor radioButtonColor = active ? MAIN_WINDOW_ACCENT_COLOR : baseColor;
-    radioButtonColor.Value.w = static_cast<float>(mainAlpha) / 255.f;
-
-    animation.radioButton = ImLerp(animation.radioButton, radioButtonColor.Value, 0.1f);
-    animation.text = ImLerp(animation.text, baseColor.Value, 0.1f);
-    animation.radioGlowAlpha = std::lerp(animation.radioGlowAlpha, active ? 1.0f : 0.0f, 0.2f);
-
-    auto basePos = pos + ImVec2(4.f, 10.f) * DPI_SCALE;
-    auto drawList = objRender::getDrawList();
-    if (animation.radioGlowAlpha > 0.0f)
+    // render tab selection
     {
-        const int maxRange = 15;
-        float windowAlpha = static_cast<float>(mainAlpha) / 255.f;
-        ImColor radioColor = animation.radioButton;
-        for (int i = 0; i < maxRange; ++i)
+        float uiAlpha = static_cast<float>(mainAlpha) / 255.f;
+
+        float colorAdd = (static_cast<float>(hovered) + static_cast<float>(held)) * 0.15f;
+        float mainColor = active ? 1.f : 0.68f + colorAdd;
+
+        ImColor baseColor{ mainColor, mainColor, mainColor, 0.f };
+        baseColor.Value.x = baseColor.Value.y = baseColor.Value.z = mainColor;
+
+        ImColor radioButtonColor = active ? MAIN_WINDOW_ACCENT_COLOR : baseColor;
+
+        animation.radioAnimation.setCondition(active);
+        animation.radioAnimation.process();
+
+        animation.radioButton = interpolateWithoutAlpha(animation.radioButton, radioButtonColor.Value, 0.1f, uiAlpha);
+        animation.text = interpolateWithoutAlpha(animation.text, baseColor.Value, 0.1f, uiAlpha);
+
+        animation.radioGlowAlpha = animation.radioAnimation.getAnimatedValue() * 0.01f;
+
+        auto basePos = pos + ImVec2(4.f, 10.f) * DPI_SCALE;
+        auto drawList = objRender::getDrawList();
+        if (animation.radioGlowAlpha > 0.0f)
         {
-            float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
-            float alphaStep = std::lerp(20.f, 0.f, step);
-            int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
+            const int maxRange = 15;
+            float windowAlpha = static_cast<float>(mainAlpha) / 255.f;
+            ImColor radioColor = animation.radioButton;
+            for (int i = 0; i < maxRange; ++i)
+            {
+                float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
+                float alphaStep = std::lerp(20.f, 0.f, step);
+                int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
 
-            float radius = std::lerp(3.5f, 10.f, step) * animation.radioGlowAlpha * DPI_SCALE;
+                float radius = std::lerp(3.5f, 10.f, step) * animation.radioGlowAlpha * DPI_SCALE;
 
-            radioColor.Value.w = (static_cast<float>(bgAlpha) / 255.f) * animation.radioGlowAlpha;
-            drawList->AddCircle(basePos, radius, radioColor);
+                radioColor.Value.w = (static_cast<float>(bgAlpha) / 255.f) * animation.radioGlowAlpha;
+                drawList->AddCircle(basePos, radius, radioColor);
+            }
         }
+
+        drawList->AddCircleFilled(basePos, 3.5f * DPI_SCALE, ImColor(animation.radioButton));
+
+        auto textPos = pos + ImVec2(21.f, 0.f) * DPI_SCALE;
+        objRender::renderText(render::getFont(FONT_ITEMS), textPos, ImColor(animation.text), name);
+
+        // drawList->AddRect(pos, pos + size, ImColor(255, 255, 255, 255));
     }
-
-    drawList->AddCircleFilled(basePos, 3.5f * DPI_SCALE, ImColor(animation.radioButton));
-     
-    auto textPos = pos + ImVec2(21.f, 0.f) * DPI_SCALE;
-    objRender::renderText(render::getFont(FONT_ITEMS), textPos, ImColor(animation.text), name);
-
-   // drawList->AddRect(pos, pos + size, ImColor(255, 255, 255, 255));
 
     return pressed;
 }
@@ -362,6 +383,11 @@ void MainWindow::renderTabsContents()
     tabContentsAnim.yPos = tabContentsAnim.yPosAnimation.getAnimatedValue();
     tabContentsAnim.ySize = tabContentsAnim.ySizeAnimation.getAnimatedValue();
 
+    tabContentsAnim.selectedTabAnimation.setCondition(tabSelection == oldTabSelection);
+    tabContentsAnim.selectedTabAnimation.process();
+
+    oldTabSelection = tabSelection;
+
     mainPos.baseTabsContents.y = static_cast<float>(static_cast<int>(tabContentsAnim.yPos));
 
     auto subTabsCursorPos = mainPos.baseSubTabsContents * DPI_SCALE;
@@ -370,7 +396,7 @@ void MainWindow::renderTabsContents()
     {
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
         
-        int mainAlpha = getMainAlpha();
+        int mainAlpha = static_cast<int>(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
 
         float buttonYSize = 20.f * DPI_SCALE;
         float buttonXSpacing = 29.f * DPI_SCALE;
@@ -443,30 +469,22 @@ void MainWindow::render()
         prevDpiScale = DPI_SCALE;
     }
 
-    float deltaTime = math::roundFloat(ImGui::GetIO().DeltaTime * 15.f, 2) + 0.005f;
-    if (getMenuInstance().opened)
-    {
-        if (windowAlpha < 1.f)
-            windowAlpha += deltaTime;
-    }
-    else
-    {
-        if (windowAlpha > 0.f)
-            windowAlpha -= deltaTime;
-    }
+    uiOpenAnimation.setCondition(getMenuInstance().opened);
+    uiOpenAnimation.process();
 
-    windowAlpha = std::clamp(windowAlpha, 0.0f, 1.0f);
+    windowAlpha = static_cast<float>(static_cast<int>(uiOpenAnimation.getAnimatedValue()) * 0.01f);
     if (windowAlpha <= 0.f)
         return;
 
     ImGui::SetNextWindowSize(size);
     ImGui::SetNextWindowBgAlpha(windowAlpha);
 
-    std::string uiName = name + "##bmx0bxoic";
+    std::string uiName = name + "##bmx09bxoic";
 
     auto styleColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 17.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, windowAlpha);
     ImGui::Begin(name.c_str(), &getMenuInstance().opened,
         ImGuiWindowFlags_NoBackground
         | ImGuiWindowFlags_NoTitleBar
@@ -512,7 +530,7 @@ void MainWindow::render()
     }
     ImGui::End();
     ImGui::PopStyleColor();
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(2);
 }
 
 void MainWindow::updateWindowPosOrSize()

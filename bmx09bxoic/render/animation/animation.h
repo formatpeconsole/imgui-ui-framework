@@ -38,6 +38,14 @@ enum AnimationWay
     ANIMATION_EASE_IN_OUT_BOUNCE
 };
 
+enum AnimationFlags : uintptr_t
+{
+    ANIMATION_FLAGS_NONE = 0,
+    ANIMATION_FLAGS_INIT_ON_START = 1 << 0,
+    ANIMATION_FLAGS_RESET_TO_START = 1 << 1,
+    ANIMATION_FLAGS_RESET_TO_END = 1 << 2,
+};
+
 class Animation
 {
 private:
@@ -50,11 +58,13 @@ private:
     float animatedValue{};
 
     AnimationWay animationWay = ANIMATION_LINEAR;
+    uintptr_t animationFlags = ANIMATION_FLAGS_NONE;
 
     bool condition{};
     bool previousCondition{};
+    bool initialized = false;
 public:
-    Animation(float start, float end, float duration, AnimationWay way);
+    Animation(float start, float end, float duration, AnimationWay way, uintptr_t flags);
 
     void setCondition(bool triggerCondition);
     void process();
