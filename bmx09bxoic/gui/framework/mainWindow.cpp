@@ -378,7 +378,7 @@ void MainWindow::renderTabsContents()
     auto& selectedTab = tabs[tabSelection];
     std::optional<subTab> selectedSubTab = {};
     if (!selectedTab.noSubTabs)
-        selectedSubTab = selectedTab.subTabs[selectedTab.subTabSelection];;
+        selectedSubTab = selectedTab.subTabs[selectedTab.subTabSelection];
 
     tabContentsAnim.yPosAnimation.setCondition(selectedTab.noSubTabs);
     tabContentsAnim.ySizeAnimation.setCondition(selectedTab.noSubTabs);
@@ -447,39 +447,34 @@ void MainWindow::renderTabsContents()
         auto currentPos = ImGui::GetWindowPos() + cursorPos;
         auto childSize = ImVec2(484.f, static_cast<float>(static_cast<int>(tabContentsAnim.ySize))) * DPI_SCALE;
 
-        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize, ImGuiChildFlags_Borders);
+        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize);
         {
             auto drawList = objRender::getDrawList();
             drawList->AddRectFilled(currentPos, currentPos + childSize, ImColor(18, 18, 18, getMainAlpha()), 17.f);
 
-            ImVec2 offset = ImVec2(1.f, 1.f) * DPI_SCALE;
-            ImGui::SetCursorPos(ImGui::GetCursorPos() + offset);
+            ImVec2 offset = ImVec2(17.f, 17.f) * DPI_SCALE;
+            ImGui::SetCursorPos(offset);
             {
                 const auto defaultSubChildSizeX = 218.f;
                 auto prevCursorPos = ImGui::GetCursorPos();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((defaultSubChildSizeX + 14.f) * DPI_SCALE));
                 {
                     auto& secondChildAnimation = tabContentsAnim.subChildsAlphaAnimation[CHILD_SECOND];
+                    {
+                        secondChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount <= 1);
+                        secondChildAnimation.process();
 
-                    bool noSecondChild = true;
-                    if (selectedSubTab.has_value() && selectedSubTab->childCount > 1)
-                        noSecondChild = false;
-
-                    secondChildAnimation.setCondition(noSecondChild);
-                    secondChildAnimation.process();
-
-                    tabContentsAnim.ySubChildFactorAnimation.setCondition(selectedSubTab.has_value() && selectedSubTab->childCount == 3);
-                    tabContentsAnim.ySubChildFactorAnimation.process();
+                        tabContentsAnim.ySubChildFactorAnimation.setCondition(selectedSubTab.has_value() && selectedSubTab->childCount == 3);
+                        tabContentsAnim.ySubChildFactorAnimation.process();
+                    }
 
                     float secondChildYMultiplier = tabContentsAnim.ySubChildFactorAnimation.getAnimatedValue() * 0.01f;
 
-                    bool noThirdChild = false;
-                    if (selectedSubTab.has_value() && selectedSubTab->childCount < 3)
-                        noThirdChild = true;
-
                     auto& thirdChildAnimation = tabContentsAnim.subChildsAlphaAnimation[CHILD_THIRD];
-                    thirdChildAnimation.setCondition(noThirdChild);
-                    thirdChildAnimation.process();
+                    {
+                        thirdChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount < 3);
+                        thirdChildAnimation.process();
+                    }
 
                     auto prevCursorPos = ImGui::GetCursorPos();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (tabContentsAnim.yChildSize * 0.53f) * DPI_SCALE);
@@ -488,7 +483,7 @@ void MainWindow::renderTabsContents()
                         if (thirdChildAlpha > 0)
                         {
                             ImVec2 groupBoxSize = ImVec2(218.f, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize * 0.47f))) * DPI_SCALE;
-                            ImGui::BeginChild("Third##bmx09bxoic", groupBoxSize, ImGuiChildFlags_Borders);
+                            ImGui::BeginChild("Third##bmx09bxoic", groupBoxSize);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
                                 drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), 17.f);
@@ -503,7 +498,7 @@ void MainWindow::renderTabsContents()
                         if (secondChildAlpha > 0)
                         {
                             ImVec2 groupBoxSize = ImVec2(218.f, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize * secondChildYMultiplier))) * DPI_SCALE;
-                            ImGui::BeginChild("Second##bmx09bxoic", groupBoxSize, ImGuiChildFlags_Borders);
+                            ImGui::BeginChild("Second##bmx09bxoic", groupBoxSize);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
                                 drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), 17.f);
@@ -516,7 +511,7 @@ void MainWindow::renderTabsContents()
                 {
                     ImVec2 groupBoxSize = ImVec2(tabContentsAnim.xChildSize, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize))) * DPI_SCALE;
                     ImGui::SetCursorPos(prevCursorPos);
-                    ImGui::BeginChild("First##bmx09bxoic", groupBoxSize, ImGuiChildFlags_Borders);
+                    ImGui::BeginChild("First##bmx09bxoic", groupBoxSize);
                     {
                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
                         drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, getMainAlpha()), 17.f);
