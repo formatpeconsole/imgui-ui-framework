@@ -21,6 +21,10 @@ extern void destroyConsole();
 struct Dll
 {
     std::atomic<bool> shouldQuit;
+
+#ifdef _DEBUG
+    std::atomic<bool> unloaded;
+#endif
 };
 
 extern Dll& getDllInstance();

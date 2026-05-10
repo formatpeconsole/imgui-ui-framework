@@ -32,6 +32,8 @@
     <ClCompile Include="gui\framework\bindsWidow.cpp" />
     <ClCompile Include="cheat-base\math.cpp" />
     <ClCompile Include="render\animation\animation.cpp" />
+    <ClCompile Include="clock\clock.cpp" />
+    <ClCompile Include="cheat-base\defines.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="threadpool\threadpool.h" />
@@ -73,5 +75,7 @@
     <ClInclude Include="cheat-base\math.h" />
     <ClInclude Include="render\animation\animation.h" />
     <ClInclude Include="render\animation\easings.h" />
+    <ClInclude Include="clock\clock.h" />
+    <ClInclude Include="cheat-base\defines.h" />
   </ItemGroup>
 </Project>

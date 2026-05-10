@@ -6,6 +6,8 @@
 #include "animation.h"
 #include "easings.h"
 
+#include "../../clock/clock.h"
+
 namespace render
 {
 float getAnimatedProgress(AnimationWay way, float t)
@@ -59,7 +61,7 @@ void Animation::setCondition(bool triggerCondition)
 
 void Animation::process()
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = getClockInstance().getTime();
 
     if (previousCondition != condition)
     {

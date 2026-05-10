@@ -7,6 +7,7 @@
 struct ModuleHandles
 {
     HANDLE gameoverlayrenderer64;
+    HANDLE client;
 };
 
 struct Signatures
@@ -14,6 +15,7 @@ struct Signatures
     Ptr overlay_Present;
     Ptr overlay_ResizeBuffers;
     Ptr overlay_CreateSwapChain;
+    Ptr client_FrameStageNotify;
 };
 
 extern Signatures& getSignaturesInstance();

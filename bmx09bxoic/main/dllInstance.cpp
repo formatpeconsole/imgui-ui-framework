@@ -20,3 +20,9 @@ void destroyConsole()
 void createConsole() {}
 void destroyConsole() {}
 #endif
+
+Dll& getDllInstance()
+{
+    static Dll ptr;
+    return ptr;
+}

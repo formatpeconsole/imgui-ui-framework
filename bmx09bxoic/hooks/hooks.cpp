@@ -3,9 +3,12 @@
 
 #include "hooks.h"
 
+#include "../clock/clock.h"
 #include "../render/render.h"
 #include "../main/dllInstance.h"
 #include "../gui/gui.h"
+
+#include "../cheat-base/defines.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -80,5 +83,19 @@ HRESULT WINAPI Hooked_CreateSwapChain(IDXGIFactory* pFactory, IUnknown* pDevice,
     render::clearRenderTargetView();
 
     return originalCreateSwapChain(pFactory, pDevice, pDesc, ppSwapChain);
+}
+
+void Hooked_FrameStageNotify(void* clientPtr, int frameStage)
+{
+    static auto originalFrameStageNotify = getHookedFuncsInstance().frameStageNotifyHook.getOriginal();
+
+    originalFrameStageNotify(clientPtr, frameStage);
+
+    switch (frameStage)
+    {
+    case defines::FRAME_RENDER_START:
+        getClockInstance().updateTime();
+        break;
+    }
 }
 }

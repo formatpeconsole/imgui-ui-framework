@@ -102,6 +102,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cheat-base\math.cpp" />
+    <ClCompile Include="cheat-base\defines.cpp" />
+    <ClCompile Include="clock\clock.cpp" />
     <ClCompile Include="config\config.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui_demo.cpp" />
@@ -127,7 +129,9 @@
     <ClCompile Include="utils\uuid.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cheat-base\defines.h" />
     <ClInclude Include="cheat-base\math.h" />
+    <ClInclude Include="clock\clock.h" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="deps\imguiFramework\imconfig.h" />
     <ClInclude Include="deps\imguiFramework\imgui.h" />
