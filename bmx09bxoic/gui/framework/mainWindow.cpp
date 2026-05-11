@@ -5,23 +5,66 @@
 #include "../gui.h"
 #include "../item.h"
 #include "../../guiItems/items.h"
+#include "../../guiItems/utils.h"
+
 #include "../../main/dllInstance.h"
 
 #include "../../config/config.h"
 
 #include "../../cheat-base/math.h"
 
-#define ITEM_PATH(...) { __VA_ARGS__ }
+// what happens
+// when you put full path to UI (where item should be located)
+// name of item added automatically from real item (not rendered one, rendered one just stores pointer of existing item and changes it's state)
+// and for itemPath there is two purposes:
+// 1) calculate real item path (where it should rendered in UI, which tab, subtab & child (depends on layout ofc but still))
+// 2) calculate LUA item path, which will be used for lua api for asking user get item by this way:
+//                                                                                                                              
+//      A) Copy lua item path which will have output as:
+//          
+//          For Example:
+//              
+//              "Ragebot", "Aimbot", "Main", "Enable"
+//                                                                                                                              
+//      B) Get real item location by already saved key (which will be generated from input as i showed above)
+//          
+//          For Example:
+//          
+//              "Ragebot", "Aimbot", "Main", "Enable" 
+// 
+//              Will be converted to:
+//                  "ragebot-aimbot-main-enable"
+// 
+//              And then encrypted to hash
+//              And when you want to find item ptr by this name in lua api
+//              You will scan ONLY item path's HASH, WHICH IS GENERATED at program launch
+// 
+//              And find this in item's list:
+// 
+//              Like 
+//                  "ragebot-aimbot-main-enable" hash is 0xAAAAAAAFFFFFF 
+// 
+//              Will be saved in list
+//              And when user will put correct path
+//              It will generate hashed key of it 
+//              And compare to existing one
+//              Which will be faster alot than scanning each "Item" from user's input
+// 
+//
+//
 
+#define ITEM_PATH(...) { __VA_ARGS__ }
 #define PLACE_CHECKBOX(itemPtr, path) \
     { \
+        auto currentItemPtr = itemPtr;\
         luaItemPath itemPath{ path }; \
+        itemPath.emplace_back(gui::items::getFormattedText(currentItemPtr->item.name)); \
         auto realItemPath = getRealItemPath(itemPath); \
         if (!realItemPath.has_value()) \
         { \
-            assert(false, "Wrong CheckBox Item Path!"); \
+            assert(false && "Wrong CheckBox Item Path!"); \
         } \
-        items.emplace_back(std::make_shared<ItemCheckBox>(itemPtr, realItemPath.value(), itemPath)); \
+        items.emplace_back(std::make_shared<ItemCheckBox>(currentItemPtr, realItemPath.value(), itemPath)); \
     } \
 
 namespace gui::framework
@@ -99,10 +142,10 @@ std::optional<RealItemPath> MainWindow::getRealItemPath(luaItemPath& path)
         return result;
     }
 
-    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](const subTab& sub) {
-        if (!subTabName.has_value())
-            return false;
+    if (!subTabName.has_value())
+        return {};
 
+    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](const subTab& sub) {
         return subTabName.value() == sub.name;
     });
 
@@ -111,11 +154,11 @@ std::optional<RealItemPath> MainWindow::getRealItemPath(luaItemPath& path)
 
     result.subTab = std::distance(tab.subTabs.begin(), currentSubTab);
 
+    if (!childName.has_value())
+        return {};
+
     auto& subTab = tab.subTabs[result.subTab];
     auto currentChild = std::find_if(subTab.childs.begin(), subTab.childs.end(), [&childName](const std::string& child) {
-        if (!childName.has_value())
-            return false;
-
         return childName.value() == child;
     });
 
@@ -350,7 +393,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::initItems()
 {
-    PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main", "Enable" ));
+    PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
+    PLACE_CHECKBOX(&getMenuInstance().rage.autoRevolver, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
 }
 
 int MainWindow::getMainAlpha()
