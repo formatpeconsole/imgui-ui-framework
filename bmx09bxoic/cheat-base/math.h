@@ -7,4 +7,6 @@
 namespace math
 {
 extern float roundFloat(float x, int decimals);
+extern float toFloat(int x);
+extern int toInt(float x);
 }

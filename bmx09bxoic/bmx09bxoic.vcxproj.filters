@@ -77,5 +77,6 @@
     <ClInclude Include="render\animation\easings.h" />
     <ClInclude Include="clock\clock.h" />
     <ClInclude Include="cheat-base\defines.h" />
+    <ClInclude Include="deps\fnv64hash\hash.h" />
   </ItemGroup>
 </Project>

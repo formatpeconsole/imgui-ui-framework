@@ -21,6 +21,13 @@ enum CHILD_ANIMATION
     CHILD_THIRD,
 };
 
+enum CHILD_CATEGORY
+{
+    CHILD_CATEGORY_FIRST = 0,
+    CHILD_CATEGORY_SECOND,
+    CHILD_CATEGORY_THIRD,
+};
+
 struct tabAnimation
 {
     ImVec4 radioButton{ 0.0f, 0.0f, 0.0f, 0.0f };
@@ -72,12 +79,18 @@ struct tabContentsAnimation
     };
 };
 
+using subTabChilds = std::vector<std::string>;
 struct subTab
 {
+    subTabChilds childs{};
     std::string name{};
     int childCount{};
 
-    subTab(std::string name, int childCount) : name(name), childCount(childCount) {}
+    subTab(std::string name, subTabChilds childsList)
+        : name(name), childs(childsList)
+    {
+        childCount = childs.size();
+    }
 };
 
 struct tabItself
@@ -115,6 +128,7 @@ public:
     ImVec2 getWindowSize() override;
 
 private:
+    void updateTabsAnimation();
     void renderWindowContents();
     void renderTabs();
     void renderTabsContents();

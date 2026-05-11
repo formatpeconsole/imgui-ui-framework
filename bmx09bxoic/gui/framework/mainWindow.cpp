@@ -7,7 +7,6 @@
 #include "../../guiItems/items.h"
 #include "../../main/dllInstance.h"
 
-#include "../../guiItems/items.h"
 #include "../../config/config.h"
 
 #include "../../cheat-base/math.h"
@@ -163,6 +162,11 @@ void renderLUATab()
 {
 }
 
+void renderChildContents(int selection, int subTabSelection, int childType)
+{
+
+}
+
 ImVec4 interpolateWithoutAlpha(const ImVec4& start, const ImVec4& end, float step, float mainAlpha)
 {
     if (start.isEmpty())
@@ -176,13 +180,12 @@ ImVec4 interpolateWithoutAlpha(const ImVec4& start, const ImVec4& end, float ste
     }
 }
 
-bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& animation, int mainAlpha)
+bool tabButton(const char* name, const char* formattedName, ImVec2 sizeArg, bool active, tabAnimation& animation, int mainAlpha)
 {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
     const ImGuiID id = window->GetID(name);
-    const ImVec2 label_size = ImGui::CalcTextSize(name, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
     ImVec2 size = sizeArg;
@@ -197,9 +200,9 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
 
     // render tab selection
     {
-        float uiAlpha = static_cast<float>(mainAlpha) / 255.f;
+        float uiAlpha = math::toFloat(mainAlpha) / 255.f;
 
-        float colorAdd = (static_cast<float>(hovered) + static_cast<float>(held)) * 0.15f;
+        float colorAdd = (math::toFloat(hovered) + math::toFloat(held)) * 0.15f;
         float radioButtonColorBase = active ? 1.f : 0.f + colorAdd;
         float textColorBase = active ? 1.f : 0.635f + colorAdd;
 
@@ -227,13 +230,13 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
             ImColor radioColor = animation.radioButton;
             for (int i = 0; i < maxRange; ++i)
             {
-                float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
+                float step = (math::toFloat(i) / math::toFloat(maxRange - 1));
                 float alphaStep = std::lerp(20.f, 0.f, step);
-                int bgAlpha = static_cast<int>(alphaStep * uiAlpha);
+                int bgAlpha = math::toInt(alphaStep * uiAlpha);
 
                 float radius = std::lerp(3.5f, 10.f, step) * DPI_SCALE;
 
-                radioColor.Value.w = (static_cast<float>(bgAlpha) / 255.f) * animation.radioGlowAlpha;
+                radioColor.Value.w = (math::toFloat(bgAlpha) / 255.f) * animation.radioGlowAlpha;
                 drawList->AddCircle(basePos, radius, radioColor);
             }
         }
@@ -241,7 +244,7 @@ bool tabButton(const char* name, ImVec2 sizeArg, bool active, tabAnimation& anim
         drawList->AddCircleFilled(basePos, 3.5f * DPI_SCALE, ImColor(animation.radioButton));
 
         auto textPos = pos + ImVec2(21.f, 0.f) * DPI_SCALE;
-        objRender::renderText(render::getFont(FONT_ITEMS), textPos, ImColor(animation.text), name);
+        objRender::renderText(render::getFont(FONT_ITEMS), textPos, ImColor(animation.text), formattedName);
 
         // drawList->AddRect(pos, pos + size, ImColor(255, 255, 255, 255));
     }
@@ -263,7 +266,7 @@ MainWindow::~MainWindow()
 
 int MainWindow::getMainAlpha()
 {
-    return static_cast<int>(255.f * windowAlpha);
+    return math::toInt(255.f * windowAlpha);
 }
 
 std::string MainWindow::getBuildType()
@@ -312,7 +315,8 @@ void MainWindow::renderTabs()
         for (int i = 0; i < tabs.size(); ++i)
         {
             auto tabName = tabs[i].name;
-            float buttonXSize = static_cast<float>(tabName.length() * 11) * DPI_SCALE;
+            auto formattedName = gui::items::getFormattedText(tabName);
+            float buttonXSize = math::toFloat(formattedName.length() * 11) * DPI_SCALE;
 
             if (i == tabSelection)
             {
@@ -322,7 +326,7 @@ void MainWindow::renderTabs()
                     tabSelectionAnim.yPos = tabSelectionAnim.beginPosY + 3.f * DPI_SCALE;
             }
 
-            if (tabButton(tabName.c_str(), ImVec2(buttonXSize, buttonYSize), i == tabSelection, tabsAnimations[i], mainAlpha))
+            if (tabButton(tabName.c_str(), formattedName.c_str(), ImVec2(buttonXSize, buttonYSize), i == tabSelection, tabsAnimations[i], mainAlpha))
                 tabSelection = i;
 
             ImGui::Dummy({ 0.f, dummyYSize });
@@ -344,12 +348,12 @@ void MainWindow::renderTabs()
             ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
             for (int i = 0; i < maxRange; ++i)
             {
-                float step = (static_cast<float>(i) / static_cast<float>(maxRange - 1));
+                float step = (math::toFloat(i) / math::toFloat(maxRange - 1));
                 float alphaStep = std::lerp(30.f, 0.f, step);
-                int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
+                int bgAlpha = math::toInt(alphaStep * windowAlpha);
 
-                float radius = std::lerp(3.5f, static_cast<float>(maxRange) - 5.f, step) * DPI_SCALE;
-                newClr.Value.w = (static_cast<float>(bgAlpha) / 255.f);
+                float radius = std::lerp(3.5f, math::toFloat(maxRange) - 5.f, step) * DPI_SCALE;
+                newClr.Value.w = (math::toFloat(bgAlpha) / 255.f);
                 drawList->AddCircle(center, radius, newClr);
             }
         }
@@ -361,7 +365,7 @@ void MainWindow::renderTabs()
             ImVec2 third = pos + tabSelectionAnim.third * DPI_SCALE;
 
             ImColor newClr = MAIN_WINDOW_ACCENT_COLOR;
-            newClr.Value.w = static_cast<float>(mainAlpha) / 255.f;
+            newClr.Value.w = math::toFloat(mainAlpha) / 255.f;
 
             drawList->AddTriangleFilled(first, second, third, newClr);
         }
@@ -371,10 +375,8 @@ void MainWindow::renderTabs()
     ImGui::EndGroup();
 }
 
-void MainWindow::renderTabsContents()
+void MainWindow::updateTabsAnimation()
 {
-    // animate child contents 
-    // depends on which tab have subtabs
     auto& selectedTab = tabs[tabSelection];
     std::optional<subTab> selectedSubTab = {};
     if (!selectedTab.noSubTabs)
@@ -392,20 +394,28 @@ void MainWindow::renderTabsContents()
     tabContentsAnim.ySize = tabContentsAnim.ySizeAnimation.getAnimatedValue();
     tabContentsAnim.yChildSize = tabContentsAnim.yChildSizeAnimation.getAnimatedValue();
 
-    tabContentsAnim.selectedTabAnimation.setCondition(tabSelection == oldTabSelection);
-    tabContentsAnim.selectedTabAnimation.process();
+    {
+        tabContentsAnim.selectedTabAnimation.setCondition(tabSelection == oldTabSelection);
+        tabContentsAnim.selectedTabAnimation.process();
 
-    oldTabSelection = tabSelection;
+        oldTabSelection = tabSelection;
+    }
 
-    bool noMoreChilds = true;
-    if (selectedSubTab.has_value() && selectedSubTab->childCount > 1)
-        noMoreChilds = false;
-
-    tabContentsAnim.xChildSizeAnimation.setCondition(noMoreChilds);
+    tabContentsAnim.xChildSizeAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount <= 1);
     tabContentsAnim.xChildSizeAnimation.process();
-    tabContentsAnim.xChildSize = static_cast<float>(static_cast<int>(tabContentsAnim.xChildSizeAnimation.getAnimatedValue()));
+    tabContentsAnim.xChildSize = math::toFloat(math::toInt(tabContentsAnim.xChildSizeAnimation.getAnimatedValue()));
 
-    mainPos.baseTabsContents.y = static_cast<float>(static_cast<int>(tabContentsAnim.yPos));
+    mainPos.baseTabsContents.y = math::toFloat(math::toInt(tabContentsAnim.yPos));
+}
+
+void MainWindow::renderTabsContents()
+{
+    updateTabsAnimation();
+ 
+    auto& selectedTab = tabs[tabSelection];
+    std::optional<subTab> selectedSubTab = {};
+    if (!selectedTab.noSubTabs)
+        selectedSubTab = selectedTab.subTabs[selectedTab.subTabSelection];
 
     auto subTabsCursorPos = mainPos.baseSubTabsContents * DPI_SCALE;
     ImGui::SetCursorPos(subTabsCursorPos);
@@ -413,7 +423,7 @@ void MainWindow::renderTabsContents()
     {
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
         
-        int mainAlpha = static_cast<int>(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
+        int mainAlpha = math::toInt(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
 
         float buttonYSize = 20.f * DPI_SCALE;
         float buttonXSpacing = 29.f * DPI_SCALE;
@@ -424,12 +434,10 @@ void MainWindow::renderTabsContents()
         for (size_t i = 0; i < size; ++i)
         {
             auto tabName = selectedTab.subTabs[i].name;
-            float buttonXSize = static_cast<float>(tabName.length() * 11) * DPI_SCALE;
-            if (tabButton(tabName.c_str(),
-                ImVec2(buttonXSize, buttonYSize),
-                i == selectedTab.subTabSelection,
-                selectedTab.subTabAnimations[i],
-                mainAlpha))
+            auto formattedName = gui::items::getFormattedText(tabName);
+            float buttonXSize = math::toFloat(formattedName.length() * 11) * DPI_SCALE;
+            if (tabButton(tabName.c_str(), formattedName.c_str(), ImVec2(buttonXSize, buttonYSize),
+                i == selectedTab.subTabSelection, selectedTab.subTabAnimations[i], mainAlpha))
                 selectedTab.subTabSelection = i;
 
             basicSpacing += (buttonXSize + buttonXSpacing);
@@ -445,14 +453,19 @@ void MainWindow::renderTabsContents()
     ImGui::BeginGroup();
     {
         auto currentPos = ImGui::GetWindowPos() + cursorPos;
-        auto childSize = ImVec2(484.f, static_cast<float>(static_cast<int>(tabContentsAnim.ySize))) * DPI_SCALE;
+        auto childSize = ImVec2(484.f, math::toFloat(math::toInt(tabContentsAnim.ySize))) * DPI_SCALE;
 
-        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize);
+        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize, 0, ImGuiWindowFlags_NoBackground);
         {
+            auto mainAlpha = getMainAlpha();
+            int itemsAlpha = math::toInt(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
+
             auto drawList = objRender::getDrawList();
-            drawList->AddRectFilled(currentPos, currentPos + childSize, ImColor(18, 18, 18, getMainAlpha()), 17.f);
+            drawList->AddRectFilled(currentPos, currentPos + childSize, ImColor(18, 18, 18, mainAlpha), 17.f);
 
             ImVec2 offset = ImVec2(17.f, 17.f) * DPI_SCALE;
+            ImVec2 textOffset = ImVec2(19.f, 10.f) * DPI_SCALE;
+            ImVec2 itemsOffset = ImVec2(27.f, 39.f) * DPI_SCALE;
             ImGui::SetCursorPos(offset);
             {
                 const auto defaultSubChildSizeX = 218.f;
@@ -460,10 +473,9 @@ void MainWindow::renderTabsContents()
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((defaultSubChildSizeX + 14.f) * DPI_SCALE));
                 {
                     auto& secondChildAnimation = tabContentsAnim.subChildsAlphaAnimation[CHILD_SECOND];
+                    secondChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount <= 1);
+                    secondChildAnimation.process();
                     {
-                        secondChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount <= 1);
-                        secondChildAnimation.process();
-
                         tabContentsAnim.ySubChildFactorAnimation.setCondition(selectedSubTab.has_value() && selectedSubTab->childCount == 3);
                         tabContentsAnim.ySubChildFactorAnimation.process();
                     }
@@ -471,22 +483,34 @@ void MainWindow::renderTabsContents()
                     float secondChildYMultiplier = tabContentsAnim.ySubChildFactorAnimation.getAnimatedValue() * 0.01f;
 
                     auto& thirdChildAnimation = tabContentsAnim.subChildsAlphaAnimation[CHILD_THIRD];
-                    {
-                        thirdChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount < 3);
-                        thirdChildAnimation.process();
-                    }
+                    thirdChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount < 3);
+                    thirdChildAnimation.process();
 
                     auto prevCursorPos = ImGui::GetCursorPos();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (tabContentsAnim.yChildSize * 0.53f) * DPI_SCALE);
                     {
-                        int thirdChildAlpha = static_cast<int>(static_cast<float>(getMainAlpha() * thirdChildAnimation.getAnimatedValue() * 0.01f));
+                        int thirdChildAlpha = math::toInt(math::toFloat(mainAlpha * thirdChildAnimation.getAnimatedValue() * 0.01f));
                         if (thirdChildAlpha > 0)
                         {
-                            ImVec2 groupBoxSize = ImVec2(218.f, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize * 0.47f))) * DPI_SCALE;
-                            ImGui::BeginChild("Third##bmx09bxoic", groupBoxSize);
+                            ImVec2 groupBoxSize = ImVec2(218.f, math::toFloat(math::toInt(tabContentsAnim.yChildSize * 0.47f))) * DPI_SCALE;
+                            ImGui::BeginChild("Third##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
                                 drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), 17.f);
+
+                                std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 2 ? gui::items::getFormattedText(selectedSubTab->childs[2]) : "";
+                                objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, thirdChildAlpha), childName.c_str());
+
+                                ImGui::SetCursorPos(itemsOffset);
+                                ImGui::BeginGroup();
+                                {
+                                    ImGui::PushFont(render::getFont(FONT_ITEMS).font);
+                                    {
+                                        renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_THIRD);
+                                    }
+                                    ImGui::PopFont();
+                                }
+                                ImGui::EndGroup();
                             }
                             ImGui::EndChild();
                         }
@@ -494,14 +518,28 @@ void MainWindow::renderTabsContents()
 
                     ImGui::SetCursorPos(prevCursorPos);
                     {
-                        int secondChildAlpha = static_cast<int>(static_cast<float>(getMainAlpha() * secondChildAnimation.getAnimatedValue() * 0.01f));
+                        int secondChildAlpha = math::toInt(math::toFloat(mainAlpha * secondChildAnimation.getAnimatedValue() * 0.01f));
                         if (secondChildAlpha > 0)
                         {
-                            ImVec2 groupBoxSize = ImVec2(218.f, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize * secondChildYMultiplier))) * DPI_SCALE;
-                            ImGui::BeginChild("Second##bmx09bxoic", groupBoxSize);
+                            ImVec2 groupBoxSize = ImVec2(218.f, math::toFloat(math::toInt(tabContentsAnim.yChildSize * secondChildYMultiplier))) * DPI_SCALE;
+                            ImGui::BeginChild("Second##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
                                 drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), 17.f);
+
+                                std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 1 ? gui::items::getFormattedText(selectedSubTab->childs[1]) : "";
+                                objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, secondChildAlpha), childName.c_str());
+
+                                ImGui::SetCursorPos(itemsOffset);
+                                ImGui::BeginGroup();
+                                {
+                                    ImGui::PushFont(render::getFont(FONT_ITEMS).font);
+                                    {
+                                        renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_SECOND);
+                                    }
+                                    ImGui::PopFont();
+                                }
+                                ImGui::EndGroup();
                             }
                             ImGui::EndChild();
                         }
@@ -509,12 +547,26 @@ void MainWindow::renderTabsContents()
                 }
 
                 {
-                    ImVec2 groupBoxSize = ImVec2(tabContentsAnim.xChildSize, static_cast<float>(static_cast<int>(tabContentsAnim.yChildSize))) * DPI_SCALE;
+                    ImVec2 groupBoxSize = ImVec2(tabContentsAnim.xChildSize, math::toFloat(math::toInt(tabContentsAnim.yChildSize))) * DPI_SCALE;
                     ImGui::SetCursorPos(prevCursorPos);
-                    ImGui::BeginChild("First##bmx09bxoic", groupBoxSize);
+                    ImGui::BeginChild("First##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                     {
                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
-                        drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, getMainAlpha()), 17.f);
+                        drawList->AddRectFilled(currentGroupBoxPos, currentGroupBoxPos + groupBoxSize, ImColor(33, 33, 33, mainAlpha), 17.f);
+
+                        std::string childName = selectedSubTab.has_value() ? gui::items::getFormattedText(selectedSubTab->childs[0]) : "Main";
+                        objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, mainAlpha), childName.c_str());
+
+                        ImGui::SetCursorPos(itemsOffset);
+                        ImGui::BeginGroup();
+                        {
+                            ImGui::PushFont(render::getFont(FONT_ITEMS).font);
+                            {
+                                renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_FIRST);
+                            }
+                            ImGui::PopFont();
+                        }
+                        ImGui::EndGroup();
                     }
                     ImGui::EndChild();
                 }
@@ -555,7 +607,7 @@ void MainWindow::render()
     uiOpenAnimation.setCondition(getMenuInstance().opened);
     uiOpenAnimation.process();
 
-    windowAlpha = static_cast<float>(static_cast<int>(uiOpenAnimation.getAnimatedValue()) * 0.01f);
+    windowAlpha = uiOpenAnimation.getAnimatedValue() * 0.01f;
     if (windowAlpha <= 0.f)
         return;
 
@@ -591,23 +643,23 @@ void MainWindow::render()
         // bg border
         {
             // border shadow
-            const int max = static_cast<int>(10.f * DPI_SCALE);
+            const int max = math::toInt(10.f * DPI_SCALE);
             for (int i = 0; i < max; ++i)
             {
-                float step = (static_cast<float>(i) / static_cast<float>(max - 1));
+                float step = (math::toFloat(i) / math::toFloat(max - 1));
                 float alphaStep = std::lerp(45.f, 0.f, step);
-                int bgAlpha = static_cast<int>(alphaStep * windowAlpha);
+                int bgAlpha = math::toInt(alphaStep * windowAlpha);
 
-                float offsetStep = 2.f + 1.f * static_cast<float>(i);
+                float offsetStep = 2.f + 1.f * math::toFloat(i);
                 drawList->AddRect(
-                    ImVec2{ static_cast<float>(static_cast<int>(minPos.x - offsetStep)), static_cast<float>(static_cast<int>(minPos.y - offsetStep)) },
-                    ImVec2{ static_cast<float>(static_cast<int>(maxPos.x + offsetStep)), static_cast<float>(static_cast<int>(maxPos.y + offsetStep)) },
+                    ImVec2{ math::toFloat(math::toInt(minPos.x - offsetStep)), math::toFloat(math::toInt(minPos.y - offsetStep)) },
+                    ImVec2{ math::toFloat(math::toInt(maxPos.x + offsetStep)), math::toFloat(math::toInt(maxPos.y + offsetStep)) },
                     ImColor(0, 0, 0, bgAlpha),
                     17.f, 0, 1.f);
             }
 
             // border
-            int borderBgAlpha = static_cast<int>(7.f * windowAlpha);
+            int borderBgAlpha = math::toInt(7.f * windowAlpha);
             drawList->AddRect({ minPos.x - 1.f, minPos.y - 1.f }, { maxPos.x + 1.f, maxPos.y + 1.f }, ImColor(33, 33, 33, borderBgAlpha), 17.f);
         }
     }

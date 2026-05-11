@@ -153,13 +153,54 @@ void Menu::initWindows()
     using namespace framework;
     windows.emplace_back(std::make_shared<BindsWindow>("BIND LIST", BINDS_WINDOW_SIZE));
     windows.emplace_back(std::make_shared<MainWindow>(tabsList{
-        tabItself{{ subTab{"Aimbot", 2}, subTab{"Anti-Aim", 3} }, "Ragebot", false},
-        tabItself{{}, "Legitbot", true},
-        tabItself{{ subTab{"Enemy", 2}, subTab{"Team", 2}, subTab{"Local", 2}, subTab{"World", 3}, subTab{"Grenades", 1} }, "Visuals", false},
-        tabItself{{}, "Miscellaneous", true},
-        tabItself{{ subTab{"Weapons", 1}, subTab{"Gloves", 1}, subTab{"Agents", 2} }, "Skin-changer", false},
-        tabItself{{}, "Configurations", true},
-        tabItself{{}, "LUA-scripts" , true},
+        tabItself{
+            {
+                subTab{"Aimbot", subTabChilds{"Main", "Hitscan"}},
+                subTab{"Anti-Aim", subTabChilds{"Main", "Movement"}}
+            },
+            "Ragebot", 
+            false
+        },
+        tabItself{{},
+            "Legitbot",
+            true
+        },
+        tabItself{
+            {
+                subTab{"Enemy", subTabChilds{"ESP", "Chams"}},
+                subTab{"Team", subTabChilds{"ESP", "Chams"}},
+                subTab{"Local", subTabChilds{"ESP", "Chams"}},
+                subTab{"Weapons", subTabChilds{"ESP", "Chams"}},
+                subTab{"Grenades", subTabChilds{"ESP", "Prediction"}}
+            },
+            "Visuals",
+            false
+        },
+        tabItself{ 
+            {
+                subTab{"Movement", subTabChilds{"Main"}},
+                subTab{"World", subTabChilds{"View", "Ambience", "Effects"}},
+            },
+            "Miscellaneous",
+            false
+        },
+        tabItself{
+            {
+                subTab{"Weapons", subTabChilds{"Knife", "Weapon"}},
+                subTab{"Gloves", subTabChilds{"CT##gloves", "T##gloves"}},
+                subTab{"Agents", subTabChilds{"CT##agents", "T##agents"}}
+            },
+            "Skin-changer",
+            false
+        },
+        tabItself{{},
+            "Configurations",
+            true
+        },
+        tabItself{{}, 
+            "LUA-scripts",
+            true
+        },
     }, "BMX09BXOIC", MAIN_WINDOW_SIZE));
 
     for (auto window : windows)
