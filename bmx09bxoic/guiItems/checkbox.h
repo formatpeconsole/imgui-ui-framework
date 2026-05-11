@@ -9,6 +9,8 @@
 
 #include "../gui/item.h"
 #include "../gui/gui.h"
+#include "../gui/framework/items.h"
+
 #include "keybind.h"
 #include "utils.h"
 
@@ -34,12 +36,14 @@ inline void addCheckBoxBind(CheckBox& checkbox)
 
 inline decltype(&addCheckBoxBind) checkBoxBindCallback = addCheckBoxBind;
 
-inline void render(CheckBox& checkbox, int childType)
+inline void render(const gui::framework::baseItemPtr& baseItem, int childType)
 {
     if (getMenuInstance().getChildType() != childType)
         return;
 
-    auto& item = checkbox.item;
+    auto checkBoxItemPtr = reinterpret_cast<CheckBox*>(baseItem->getItemPtr());
+
+    auto& item = checkBoxItemPtr->item;
 
     std::string itemKey = std::to_string(reinterpret_cast<uintptr_t>(&item));
     std::string itemValueKey = std::to_string(reinterpret_cast<uintptr_t>(&item.value));
@@ -81,7 +85,7 @@ inline void render(CheckBox& checkbox, int childType)
 
                 if (ImGui::SmallButton(bindAdd.c_str()))
                 {
-                    checkBoxBindCallback(checkbox);
+                    checkBoxBindCallback(*checkBoxItemPtr);
 
                     preview.selection = 0;
                     preview.selectedBind.reset();
@@ -114,7 +118,7 @@ inline void render(CheckBox& checkbox, int childType)
 
                     if (ImGui::SmallButton(bindPlus.c_str()))
                     {
-                        checkBoxBindCallback(checkbox);
+                        checkBoxBindCallback(*checkBoxItemPtr);
                         preview.selectedBind.reset();
                         preview.selection = bindsIter;
                         continue;

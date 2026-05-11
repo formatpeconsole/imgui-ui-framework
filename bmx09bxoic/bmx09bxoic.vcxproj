@@ -116,6 +116,7 @@
     <ClCompile Include="gui\binds\binds.cpp" />
     <ClCompile Include="gui\binds\utils.cpp" />
     <ClCompile Include="gui\framework\bindsWidow.cpp" />
+    <ClCompile Include="gui\framework\items.cpp" />
     <ClCompile Include="gui\framework\mainWindow.cpp" />
     <ClCompile Include="render\animation\animation.cpp" />
     <ClCompile Include="gui\gui.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="gui\binds\binds-manager.h" />
     <ClInclude Include="gui\binds\utils.h" />
     <ClInclude Include="gui\framework\bindsWindow.h" />
+    <ClInclude Include="gui\framework\items.h" />
     <ClInclude Include="gui\framework\mainWindow.h" />
     <ClInclude Include="gui\framework\window.h" />
     <ClInclude Include="render\animation\animation.h" />

@@ -201,7 +201,7 @@ void Menu::initWindows()
             "LUA-scripts",
             true
         },
-    }, "BMX09BXOIC", MAIN_WINDOW_SIZE));
+    }, "OPAIHOOK", MAIN_WINDOW_SIZE));
 
     for (auto window : windows)
         window->init();

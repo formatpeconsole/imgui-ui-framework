@@ -1,6 +1,8 @@
 #pragma once
-#include "window.h"
 #include "../../render/animation/animation.h"
+
+#include "window.h"
+#include "items.h"
 
 namespace gui::framework
 {
@@ -120,6 +122,7 @@ struct tabItself
 };
 
 using tabsList = std::vector<tabItself>;
+using itemsList = std::list<baseItemPtr>;
 class MainWindow : public IWindow
 {
 public:
@@ -134,6 +137,9 @@ public:
     ImVec2 getWindowSize() override;
 
 private:
+    void initItems();
+    void renderItem(const baseItemPtr& baseItem, const RealItemPath& currentItemPath);
+    void renderChildContents(int selection, int subTabSelection, int childType);
     void updateTabsAnimation();
     void renderWindowContents();
     void renderTabs();
@@ -141,12 +147,14 @@ private:
     void renderLogo();
     void renderBottomInfo();
 
+    std::optional<RealItemPath> getRealItemPath(luaItemPath & path);
+
     std::string getBuildType();
     std::string getBuildDate();
 
     int getMainAlpha();
 
-    std::unordered_map<void*, std::pair<void*, int>> items{};
+    itemsList items{};
     tabAnimationsList tabsAnimations{};
     tabsList tabs{};
 

@@ -7,32 +7,6 @@
 
 namespace gui::items
 {
-// get item key that stores in hash
-// key containts full path to item
-//
-// for example:
-//
-// checkbox "Enable" that located at "Ragebot->Aimbot->Main(groupbox)"
-// full key will look like:
-// ragebot-aimbot-main-enable
-inline fnv64Hash getItemKey(std::vector<std::string> path)
-{
-    std::string key{};
-    fnv64Hash result{};
-    bool first = true;
-    for (auto item : path)
-    {
-        std::transform(item.begin(), item.end(), item.begin(), [](char c) { return std::tolower(c); });
-
-        if (!first)
-            key += "-";
-
-        key += item;
-        first = false;
-    }
-
-    return fnv64::fnv1a_hash(key);
-}
 
 // get text without hashtags for ui naming
 // for example

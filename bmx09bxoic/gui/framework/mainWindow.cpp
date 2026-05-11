@@ -11,6 +11,19 @@
 
 #include "../../cheat-base/math.h"
 
+#define ITEM_PATH(...) { __VA_ARGS__ }
+
+#define PLACE_CHECKBOX(itemPtr, path) \
+    { \
+        luaItemPath itemPath{ path }; \
+        auto realItemPath = getRealItemPath(itemPath); \
+        if (!realItemPath.has_value()) \
+        { \
+            assert(false, "Wrong CheckBox Item Path!"); \
+        } \
+        items.emplace_back(std::make_shared<ItemCheckBox>(itemPtr, realItemPath.value(), itemPath)); \
+    } \
+
 namespace gui::framework
 {
 void renderSubTabs(const std::vector<std::string>& tabs, int& selection)
@@ -53,11 +66,92 @@ void renderLUATab()
 {
 }
 
-void renderChildContents(int selection, int subTabSelection, int childType)
+std::optional<RealItemPath> MainWindow::getRealItemPath(luaItemPath& path)
+{
+    if (path.empty() || path.size() < 2)
+        return {};
+
+    auto& mainTabName = path[0];
+
+    std::optional<std::string> subTabName = std::nullopt;
+    if (path.size() > 1)
+        subTabName = path[1];
+
+    std::optional<std::string> childName = std::nullopt;
+    if (path.size() > 2)
+        childName = path[2];
+
+    auto currentTab = std::find_if(tabs.begin(), tabs.end(), [&mainTabName](const tabItself& tab) {
+        return tab.name == mainTabName;
+    });
+
+    if (currentTab == tabs.end())
+        return {};
+
+    RealItemPath result{};
+    result.tab = std::distance(tabs.begin(), currentTab);
+
+    auto& tab = tabs[result.tab];
+    if (tab.noSubTabs)
+    {
+        result.subTab = 0;
+        result.childCategory = CHILD_CATEGORY_FIRST;
+        return result;
+    }
+
+    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](const subTab& sub) {
+        if (!subTabName.has_value())
+            return false;
+
+        return subTabName.value() == sub.name;
+    });
+
+    if (currentSubTab == tab.subTabs.end())
+        return {};
+
+    result.subTab = std::distance(tab.subTabs.begin(), currentSubTab);
+
+    auto& subTab = tab.subTabs[result.subTab];
+    auto currentChild = std::find_if(subTab.childs.begin(), subTab.childs.end(), [&childName](const std::string& child) {
+        if (!childName.has_value())
+            return false;
+
+        return childName.value() == child;
+    });
+
+    if (currentChild == subTab.childs.end())
+        return {};
+    
+    result.childCategory = std::distance(subTab.childs.begin(), currentChild);
+    return result;
+}
+
+void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& currentItemPath)
+{
+    const auto type = baseItem->getItemType();
+    auto realPath = baseItem->getRealItemPath();
+    if (!realPath.canRender(currentItemPath))
+        return;
+
+    switch (type)
+    {
+    case ITEM_CHECKBOX:
+        checkbox::render(baseItem, realPath.childCategory);
+        break;
+    }
+}
+
+void MainWindow::renderChildContents(int selection, int subTabSelection, int childType)
 {
     getMenuInstance().updateChildType(childType);
 
-    switch (selection)
+    RealItemPath itemPath{ selection, subTabSelection, childType };
+
+    for (auto& i : items)
+        renderItem(i, itemPath);
+
+
+   /* switch (selection)
     {
     case TAB_RAGE:
     {
@@ -152,7 +246,7 @@ void renderChildContents(int selection, int subTabSelection, int childType)
 
     }
     break;
-    }
+    }*/
 }
 
 ImVec4 interpolateWithoutAlpha(const ImVec4& start, const ImVec4& end, float step, float mainAlpha)
@@ -244,12 +338,19 @@ MainWindow::MainWindow(tabsList tabs, std::string name, ImVec2 size)
     : tabs(tabs), name(name), size(size), tabSelection(0), prevDpiScale(1.f), windowAlpha(0.f)
 {
     tabsAnimations.resize(tabs.size());
+    initItems();
 }
 
 MainWindow::~MainWindow()
 {
     tabs.clear();
     tabsAnimations.clear();
+    items.clear();
+}
+
+void MainWindow::initItems()
+{
+    PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main", "Enable" ));
 }
 
 int MainWindow::getMainAlpha()
