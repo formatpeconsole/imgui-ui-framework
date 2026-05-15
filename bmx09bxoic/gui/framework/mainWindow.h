@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+
 #include "../../render/animation/animation.h"
 #include "../../guiItems/utils.h"
 
@@ -119,6 +121,7 @@ struct tabItself
 
 using tabsList = std::vector<tabItself>;
 using itemsList = std::list<baseItemPtr>;
+
 class MainWindow : public IWindow
 {
 public:
@@ -151,7 +154,7 @@ private:
     int getMainAlpha();
 
     template<typename T>
-    void placeItem(T* ptr, luaItemPath&& path)
+    void placeItem(T* ptr, luaItemPath&& path, isVisibleFn&& isVisible)
     {
         luaItemPath itemPath{ std::forward<luaItemPath>(path) };
         itemPath.emplace_back(gui::items::getFormattedText(ptr->item.name));
@@ -165,7 +168,7 @@ private:
 #endif
             return;
         }
-        items.emplace_back(std::make_shared<UiItem<T>>(ptr, realItemPath.value(), itemPath));
+        items.emplace_back(std::make_shared<UiItem<T>>(ptr, realItemPath.value(), itemPath, std::forward<isVisibleFn>(isVisible)));
     }
 
     itemsList items{};

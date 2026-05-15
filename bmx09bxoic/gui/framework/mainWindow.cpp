@@ -53,12 +53,13 @@
 //
 //
 #define ITEM_PATH(...) { __VA_ARGS__ }
-#define PLACE_CHECKBOX(itemPtr, path) placeItem<CheckBox>(itemPtr, path)
-#define PLACE_SLIDER_INT(itemPtr, path) placeItem<Slider<int>>(itemPtr, path)
-#define PLACE_SLIDER_FLOAT(itemPtr, path) placeItem<Slider<float>>(itemPtr, path)
-#define PLACE_COMBO(itemPtr, path) placeItem<ComboBox>(itemPtr, path)
-#define PLACE_MULTICOMBO(itemPtr, path) placeItem<MultiComboBox>(itemPtr, path)
-#define PLACE_COLORPICKER(itemPtr, path) placeItem<ColorPicker>(itemPtr, path)
+#define IS_VISIBLE_DUMMY std::nullopt
+#define PLACE_CHECKBOX(itemPtr, path, visible) placeItem<CheckBox>(itemPtr, path, visible)
+#define PLACE_SLIDER_INT(itemPtr, path, visible) placeItem<Slider<int>>(itemPtr, path, visible)
+#define PLACE_SLIDER_FLOAT(itemPtr, path, visible) placeItem<Slider<float>>(itemPtr, path, visible)
+#define PLACE_COMBO(itemPtr, path, visible) placeItem<ComboBox>(itemPtr, path, visible)
+#define PLACE_MULTICOMBO(itemPtr, path, visible) placeItem<MultiComboBox>(itemPtr, path, visible)
+#define PLACE_COLORPICKER(itemPtr, path, visible) placeItem<ColorPicker>(itemPtr, path, visible)
 
 namespace gui::framework
 {
@@ -150,7 +151,7 @@ void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& cur
 {
     const auto type = baseItem->getItemType();
     auto realPath = baseItem->getRealItemPath();
-    if (!realPath.canRender(currentItemPath))
+    if (!realPath.canRender(currentItemPath) || !baseItem->isVisible())
         return;
 
     switch (type)
@@ -270,40 +271,64 @@ MainWindow::~MainWindow()
 
 void MainWindow::initItems()
 {
-    PLACE_COMBO(&getMenuInstance().rage.configSelect, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
-    PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
-    PLACE_CHECKBOX(&getMenuInstance().rage.autoRevolver, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
-    PLACE_CHECKBOX(&getMenuInstance().rage.doubleTap, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
-    PLACE_CHECKBOX(&getMenuInstance().rage.noSpread, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
-    PLACE_CHECKBOX(&getMenuInstance().rage.duckPeekAssist, ITEM_PATH( "Ragebot", "Aimbot", "Main" ));
+    PLACE_COMBO(&getMenuInstance().rage.configSelect, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.autoRevolver, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.doubleTap, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.noSpread, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.duckPeekAssist, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
 
     for (int i = 0; i < MAX_CONFIGS; ++i)
     {
         auto& itemFromWeaponConfig = getMenuInstance().rage.config[i];
-
-        PLACE_CHECKBOX(&itemFromWeaponConfig.overrideGlobal, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_CHECKBOX(&itemFromWeaponConfig.autoFire, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_CHECKBOX(&itemFromWeaponConfig.autoScope, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_SLIDER_INT(&itemFromWeaponConfig.fov, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_MULTICOMBO(&itemFromWeaponConfig.hitBoxes, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_MULTICOMBO(&itemFromWeaponConfig.multiPoints, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_SLIDER_INT(&itemFromWeaponConfig.pointHeadScale, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_SLIDER_INT(&itemFromWeaponConfig.pointBodyScale, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_CHECKBOX(&itemFromWeaponConfig.preferBody, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_SLIDER_INT(&itemFromWeaponConfig.hitChance, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_SLIDER_INT(&itemFromWeaponConfig.minDamage, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
-        PLACE_MULTICOMBO(&itemFromWeaponConfig.quickStop, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"));
+        PLACE_CHECKBOX(&itemFromWeaponConfig.overrideGlobal, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value != 0
+                && getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_CHECKBOX(&itemFromWeaponConfig.autoFire, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_CHECKBOX(&itemFromWeaponConfig.autoScope, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_SLIDER_INT(&itemFromWeaponConfig.fov, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_MULTICOMBO(&itemFromWeaponConfig.hitBoxes, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_MULTICOMBO(&itemFromWeaponConfig.multiPoints, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_SLIDER_INT(&itemFromWeaponConfig.pointHeadScale, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_SLIDER_INT(&itemFromWeaponConfig.pointBodyScale, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_CHECKBOX(&itemFromWeaponConfig.preferBody, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_SLIDER_INT(&itemFromWeaponConfig.hitChance, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_SLIDER_INT(&itemFromWeaponConfig.minDamage, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
+        PLACE_MULTICOMBO(&itemFromWeaponConfig.quickStop, ITEM_PATH("Ragebot", "Aimbot", "Hitscan"), [i]() {
+            return getMenuInstance().rage.configSelect.item.value == i;
+            });
     }
 
-    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.enable, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.atTarget, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_COMBO(&getMenuInstance().rage.antiAim.pitch, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_COMBO(&getMenuInstance().rage.antiAim.yaw, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_COMBO(&getMenuInstance().rage.antiAim.jitter, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_SLIDER_INT(&getMenuInstance().rage.antiAim.jitterOffset, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_SLIDER_INT(&getMenuInstance().rage.antiAim.yawOffset, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.freestanding, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
-    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.zeroOnPeek, ITEM_PATH("Ragebot", "Anti-Aim", "Main"));
+    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.enable, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.atTarget, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_COMBO(&getMenuInstance().rage.antiAim.pitch, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_COMBO(&getMenuInstance().rage.antiAim.yaw, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_COMBO(&getMenuInstance().rage.antiAim.jitter, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_SLIDER_INT(&getMenuInstance().rage.antiAim.jitterOffset, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_SLIDER_INT(&getMenuInstance().rage.antiAim.yawOffset, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.freestanding, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
+    PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.zeroOnPeek, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
 }
 
 int MainWindow::getMainAlpha()

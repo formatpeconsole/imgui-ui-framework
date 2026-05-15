@@ -1,5 +1,7 @@
 #pragma once
 #include <sstream>
+#include <optional>
+#include <functional>
 
 #include "window.h"
 #include "../item.h"
@@ -79,6 +81,7 @@ struct RealItemPath
 class BaseItem
 {
 public:
+    virtual bool isVisible() = 0;
     virtual int getItemType() = 0;
     virtual RealItemPath getRealItemPath() = 0;
     virtual void* getItemPtr() = 0;
@@ -87,42 +90,52 @@ public:
     virtual std::string getLuaPath() = 0;
 };
 using baseItemPtr = std::shared_ptr<BaseItem>;
+using isVisibleFn = std::optional<std::function<bool()>>;
 
 template<typename T>
 class UiItem : public BaseItem
 {
 public:
-    UiItem(T* itemPtr, RealItemPath realItemPath, luaItemPath luaItemPath)
+    UiItem(T* itemPtr, RealItemPath realItemPath, luaItemPath luaItemPath, isVisibleFn&& visibleCallback)
         : luaPath(luaItemPath), realItemPath(realItemPath), 
-        itemPtr(itemPtr), itemType(itemPtr->item.itemType) {}
+        itemPtr(itemPtr), itemType(itemPtr->item.itemType),
+        visibleCallback(std::forward<isVisibleFn>(visibleCallback)) {}
 
-    int getItemType()
+    bool isVisible() override
+    {
+        if (visibleCallback.has_value())
+            return visibleCallback.value()();
+
+        return true;
+    }
+
+    int getItemType() override
     {
         return itemType;
     }
 
-    RealItemPath getRealItemPath()
+    RealItemPath getRealItemPath() override
     {
         return realItemPath;
     }
 
-    void* getItemPtr()
+    void* getItemPtr() override
     {
         return reinterpret_cast<void*>(itemPtr);
     }
 
-    void createKey()
+    void createKey() override
     {
         luaItemKey.path = getLuaItemPath(luaPath);
         luaItemKey.hash = getLuaItemKey(luaPath);
     }
 
-    fnv64Hash getLuaKey()
+    fnv64Hash getLuaKey() override
     {
         return luaItemKey.hash;
     }
 
-    std::string getLuaPath()
+    std::string getLuaPath() override
     {
         return luaItemKey.path;
     }
@@ -131,6 +144,7 @@ private:
     luaItemPath luaPath{};
     RealItemPath realItemPath{};
     LuaItemKey luaItemKey{};
+    isVisibleFn visibleCallback{};
     T* itemPtr{};
     int itemType{};
 };
