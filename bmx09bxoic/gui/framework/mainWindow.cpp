@@ -65,6 +65,13 @@
 
 namespace gui::framework
 {
+namespace
+{
+    constexpr float WINDOW_ROUNDING = 17.f;
+    constexpr float CHILD_ROUNDING = 17.f;
+    constexpr float CONTENTS_ROUNDING = 17.f;
+}
+
 void renderConfigsTab()
 {
     ImGui::BeginGroup();
@@ -273,7 +280,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::initItems()
 {
-    PLACE_COMBO(&getMenuInstance().rage.configSelect, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
+    //PLACE_COMBO(&getMenuInstance().rage.configSelect, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
     PLACE_CHECKBOX(&getMenuInstance().rage.enable, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
     PLACE_CHECKBOX(&getMenuInstance().rage.autoRevolver, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
     PLACE_CHECKBOX(&getMenuInstance().rage.doubleTap, ITEM_PATH( "Ragebot", "Aimbot", "Main" ), IS_VISIBLE_DUMMY);
@@ -576,22 +583,20 @@ void MainWindow::renderTabsContents()
             auto mainAlpha = getMainAlpha();
             int itemsAlpha = math::toInt(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
 
-            objRender::drawFilledRect(currentPos, childSize, ImColor(18, 18, 18, mainAlpha), 6.f);
+            objRender::drawFilledRect(currentPos, childSize, ImColor(18, 18, 18, mainAlpha), CHILD_ROUNDING);
 
             // those offsets are supposed to render contents
             // depends on UI layout in Figma 
             // NOTE: it have some differences and some pixel offsets are increased
             ImVec2 offset = ImVec2(17.f, 17.f) * DPI_SCALE;
             ImVec2 textOffset = ImVec2(19.f, 10.f) * DPI_SCALE;
-            ImVec2 childContentsOffset = ImVec2(0.f, 45.f) * DPI_SCALE;
-            ImVec2 itemsOffset = ImVec2(27.f, 18.f) * DPI_SCALE;
+            ImVec2 childContentsOffset = ImVec2(0.f, 35.f) * DPI_SCALE;
+            ImVec2 itemsOffset = ImVec2(27.f, 4.f) * DPI_SCALE;
             ImVec2 childBgBorderOffset = ImVec2(1.f, 1.f) * DPI_SCALE;
 
-            float childFirstLineOffset = 40.f * DPI_SCALE;
-            float childSecondLineOffset = 37.f * DPI_SCALE;
-            float childLineHeight = 5.f * DPI_SCALE;
-
-            float childContentsYSizeOffset = childFirstLineOffset + childSecondLineOffset + childLineHeight;
+            float childFirstLineOffset = 35.f * DPI_SCALE;
+            float childSecondLineOffset = 36.f * DPI_SCALE;
+            float childContentsYSizeOffset = childFirstLineOffset + childSecondLineOffset;
 
             // render childs with contents inside of main rect
             // main rect located at uiPos + mainCursorPosOffset(mainPos.baseTabsContents)
@@ -657,7 +662,7 @@ void MainWindow::renderTabsContents()
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                                 // bg
-                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), 5.f);
+                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), CONTENTS_ROUNDING);
 
                                 std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 2 ? gui::items::getFormattedText(selectedSubTab->childs[2]) : "";
                                 objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, thirdChildAlpha), childName.c_str());
@@ -668,8 +673,9 @@ void MainWindow::renderTabsContents()
                                     ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
                                     ImGui::BeginChild("ThirdChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
                                     {
-                                        auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
-                                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, thirdChildAlpha), 0.f);
+                                        // saved this code for debugging
+                                        //auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+                                        //objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, thirdChildAlpha), 0.f);
 
                                         ImGui::SetCursorPos(itemsOffset);
                                         ImGui::BeginGroup();
@@ -681,15 +687,6 @@ void MainWindow::renderTabsContents()
                                     ImGui::EndChild();
                                 }
                                 ImGui::EndGroup();
-
-                                // border
-                                objRender::drawRect(currentGroupBoxPos - childBgBorderOffset, groupBoxSize + childBgBorderOffset * 2.f, ImColor(56, 56, 56, thirdChildAlpha), 5.f, 0, 2.f);
-
-                                // line above name
-                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, childFirstLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, thirdChildAlpha));
-
-                                // line below child
-                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, groupBoxSize.y - childSecondLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, thirdChildAlpha));
                             }
                             ImGui::EndChild();
                         }
@@ -710,7 +707,7 @@ void MainWindow::renderTabsContents()
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                                 // bg
-                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), 5.f);
+                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), CONTENTS_ROUNDING);
 
                                 std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 1 ? gui::items::getFormattedText(selectedSubTab->childs[1]) : "";
                                 objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, secondChildAlpha), childName.c_str());
@@ -721,8 +718,9 @@ void MainWindow::renderTabsContents()
                                     ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
                                     ImGui::BeginChild("SecondChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
                                     {
-                                        auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
-                                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, secondChildAlpha), 0.f);
+                                        // saved this code for debugging
+                                        //auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+                                        //objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, secondChildAlpha), 0.f);
 
                                         ImGui::SetCursorPos(itemsOffset);
                                         ImGui::BeginGroup();
@@ -734,15 +732,6 @@ void MainWindow::renderTabsContents()
                                     ImGui::EndChild();
                                 }
                                 ImGui::EndGroup();
-
-                                // border
-                                objRender::drawRect(currentGroupBoxPos - childBgBorderOffset, groupBoxSize + childBgBorderOffset * 2.f, ImColor(56, 56, 56, secondChildAlpha), 5.f, 0, 2.f);
-
-                                // line above name
-                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, childFirstLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, secondChildAlpha));
-
-                                // line below child
-                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, groupBoxSize.y - childSecondLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, secondChildAlpha));
                             }
                             ImGui::EndChild();
                         }
@@ -759,7 +748,7 @@ void MainWindow::renderTabsContents()
                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                         // bg
-                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, mainAlpha), 5.f);
+                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, mainAlpha), CONTENTS_ROUNDING);
 
                         std::string childName = selectedSubTab.has_value() ? gui::items::getFormattedText(selectedSubTab->childs[0]) : "Main";
                         objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, mainAlpha), childName.c_str());
@@ -770,8 +759,9 @@ void MainWindow::renderTabsContents()
                             ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
                             ImGui::BeginChild("FirstChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
                             {
-                                auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
-                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, mainAlpha), 0.f);
+                                // saved this code for debugging
+                                //auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+                                //objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, mainAlpha), 0.f);
 
                                 ImGui::SetCursorPos(itemsOffset);
                                 ImGui::BeginGroup();
@@ -783,15 +773,6 @@ void MainWindow::renderTabsContents()
                             ImGui::EndChild();
                         }
                         ImGui::EndGroup();
-
-                        // border
-                        objRender::drawRect(currentGroupBoxPos - childBgBorderOffset, groupBoxSize + childBgBorderOffset * 2.f, ImColor(56, 56, 56, mainAlpha), 5.f, 0, 2.f);
-
-                        // line above name
-                        objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, childFirstLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, mainAlpha));
-
-                        // line below child
-                        objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, groupBoxSize.y - childSecondLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, mainAlpha));
                     }
                     ImGui::EndChild();
                 }
@@ -862,7 +843,7 @@ void MainWindow::render()
 
         // background
         {
-            objRender::drawFilledRect(pos, size, ImColor(33, 33, 33, getMainAlpha()), 6.f);
+            objRender::drawFilledRect(pos, size, ImColor(33, 33, 33, getMainAlpha()), WINDOW_ROUNDING);
 
             // main ui (name, items, info)
             renderWindowContents();
@@ -876,8 +857,8 @@ void MainWindow::render()
 
             const int maxShadowRange = math::toInt(10.f * DPI_SCALE);
             ImColor shadowColor = ImColor(0, 0, 0, getMainAlpha());
-            objRender::drawRectShadow(pos - shadowBorderOffset, size + shadowBorderOffset * 2, std::forward<ImColor>(shadowColor), maxShadowRange, 45.f, 6.f);
-            objRender::drawRect(pos - borderOffset, size + borderOffset, ImColor(33, 33, 33, borderBgAlpha), 6.f);
+            objRender::drawRectShadow(pos - shadowBorderOffset, size + shadowBorderOffset * 2, std::forward<ImColor>(shadowColor), maxShadowRange, 45.f, WINDOW_ROUNDING);
+            objRender::drawRect(pos - borderOffset, size + borderOffset, ImColor(33, 33, 33, borderBgAlpha), WINDOW_ROUNDING);
         }
     }
     ImGui::End();
