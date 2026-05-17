@@ -599,14 +599,13 @@ void MainWindow::renderTabsContents()
             // so current offset for contents will be 17, 17 from already animated rect
             ImGui::SetCursorPos(ImGui::GetCursorPos() + offset);
             {
-                // the main logic of rendering childs is
-                // to render childs by layers 
-                // depends on their position on screen
+                // the main logic of rendering childs is to render childs by layers depending on their position on screen
                 // rendering layers are:
                 // 
                 //      [ third child ] (located at right bottom side of main rect)
                 //      [ second child ] (located at right side of main rect)
                 //      [ first child ] (located at left side)
+                // 
                 // 
                 // each child has it's own animation 
                 // which depends on tab layout right now:
@@ -623,7 +622,7 @@ void MainWindow::renderTabsContents()
                 // note that all animations will stick to each other
                 // that means if you selected tab with one child w/o subtab
                 // and changed to tab with three childs
-                // then all animations will be played
+                // all animations will be played
 
                 // because second and third child located at right side of main rect, they will have same X position
                 // so we can set cursor to this position one time for both of them
@@ -697,7 +696,7 @@ void MainWindow::renderTabsContents()
                     }
 
                     // after it got placed
-                    // set cursor to second child position which is located at right side of main rect and have same Y position as first child
+                    // set cursor to second child position which is located at right side
                     // note that if third child will be rendered
                     // Y size of child will be changed
                     ImGui::SetCursorPos(prevCursorPos);
