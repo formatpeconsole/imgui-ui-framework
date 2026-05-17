@@ -500,17 +500,14 @@ void MainWindow::updateTabsAnimation()
     tabContentsAnim.yPosAnimation.setCondition(selectedTab.noSubTabs);
     tabContentsAnim.ySizeAnimation.setCondition(selectedTab.noSubTabs);
     tabContentsAnim.yChildSizeAnimation.setCondition(selectedTab.noSubTabs);
-    tabContentsAnim.yChildContentsSizeAnimation.setCondition(selectedTab.noSubTabs);
 
     tabContentsAnim.yPosAnimation.process();
     tabContentsAnim.ySizeAnimation.process();
     tabContentsAnim.yChildSizeAnimation.process();
-    tabContentsAnim.yChildContentsSizeAnimation.process();
 
     tabContentsAnim.yPos = tabContentsAnim.yPosAnimation.getAnimatedValue();
     tabContentsAnim.ySize = tabContentsAnim.ySizeAnimation.getAnimatedValue();
     tabContentsAnim.yChildSize = tabContentsAnim.yChildSizeAnimation.getAnimatedValue();
-    tabContentsAnim.yChildContentsSize = tabContentsAnim.yChildContentsSizeAnimation.getAnimatedValue();
 
     {
         tabContentsAnim.selectedTabAnimation.setCondition(tabSelection == oldTabSelection);
@@ -574,13 +571,16 @@ void MainWindow::renderTabsContents()
         auto childSize = ImVec2(484.f, math::toFloat(math::toInt(tabContentsAnim.ySize))) * DPI_SCALE;
 
         ImGui::PushFont(render::getFont(FONT_ITEMS).font);
-        ImGui::BeginChild("MainTabs##bmx09bxoic", childSize, 0, ImGuiWindowFlags_NoBackground);
+        ImGui::BeginGroup();
         {
             auto mainAlpha = getMainAlpha();
             int itemsAlpha = math::toInt(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
 
             objRender::drawFilledRect(currentPos, childSize, ImColor(18, 18, 18, mainAlpha), 6.f);
 
+            // those offsets are supposed to render contents
+            // depends on UI layout in Figma 
+            // NOTE: it have some differences and some pixel offsets are increased
             ImVec2 offset = ImVec2(17.f, 17.f) * DPI_SCALE;
             ImVec2 textOffset = ImVec2(19.f, 10.f) * DPI_SCALE;
             ImVec2 childContentsOffset = ImVec2(0.f, 45.f) * DPI_SCALE;
@@ -590,8 +590,43 @@ void MainWindow::renderTabsContents()
             float childFirstLineOffset = 40.f * DPI_SCALE;
             float childSecondLineOffset = 37.f * DPI_SCALE;
             float childLineHeight = 5.f * DPI_SCALE;
-            ImGui::SetCursorPos(offset);
+
+            float childContentsYSizeOffset = childFirstLineOffset + childSecondLineOffset + childLineHeight;
+
+            // render childs with contents inside of main rect
+            // main rect located at uiPos + mainCursorPosOffset(mainPos.baseTabsContents)
+            // which is animated
+            // so current offset for contents will be 17, 17 from already animated rect
+            ImGui::SetCursorPos(ImGui::GetCursorPos() + offset);
             {
+                // the main logic of rendering childs is
+                // to render childs by layers 
+                // depends on their position on screen
+                // rendering layers are:
+                // 
+                //      [ third child ] (located at right bottom side of main rect)
+                //      [ second child ] (located at right side of main rect)
+                //      [ first child ] (located at left side)
+                // 
+                // each child has it's own animation 
+                // which depends on tab layout right now:
+                // 
+                // if tab doesn't have any subtabs, first child will be only rendered and strected to full size of main rect
+                // if tab have subtabs:
+                //  
+                //     - if two childs and you selected from one tab w/o subtab to other
+                //              then first child will be strected to half by X and second child will appear with alpha animation
+                // 
+                //     - if three childs and you selected w/o third one
+                //              then second child will be strected by Y to half and third child will appear with alpha animation
+                // 
+                // note that all animations will stick to each other
+                // that means if you selected tab with one child w/o subtab
+                // and changed to tab with three childs
+                // then all animations will be played
+
+                // because second and third child located at right side of main rect, they will have same X position
+                // so we can set cursor to this position one time for both of them
                 const auto defaultSubChildSizeX = 218.f;
                 auto prevCursorPos = ImGui::GetCursorPos();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((defaultSubChildSizeX + 14.f) * DPI_SCALE));
@@ -610,6 +645,7 @@ void MainWindow::renderTabsContents()
                     thirdChildAnimation.setCondition(!selectedSubTab.has_value() || selectedSubTab->childCount < 3);
                     thirdChildAnimation.process();
 
+                    // place third child at half of screen of child contents rect
                     auto prevCursorPos = ImGui::GetCursorPos();
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (tabContentsAnim.yChildSize * 0.53f) * DPI_SCALE);
                     {
@@ -620,33 +656,60 @@ void MainWindow::renderTabsContents()
                             ImGui::BeginChild("Third##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+
+                                // bg
                                 objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), 5.f);
-                                objRender::drawRect(currentGroupBoxPos, groupBoxSize, ImColor(56, 56, 56, mainAlpha), 5.f, 0, 2.f);
 
                                 std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 2 ? gui::items::getFormattedText(selectedSubTab->childs[2]) : "";
                                 objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, thirdChildAlpha), childName.c_str());
 
-                                ImGui::SetCursorPos(itemsOffset);
+                                ImGui::SetCursorPos(childContentsOffset);
                                 ImGui::BeginGroup();
                                 {
-                                    renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_THIRD);
+                                    ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
+                                    ImGui::BeginChild("ThirdChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
+                                    {
+                                        auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+                                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxContentsSize, ImColor(25, 25, 25, thirdChildAlpha), 0.f);
+
+                                        ImGui::SetCursorPos(itemsOffset);
+                                        ImGui::BeginGroup();
+                                        {
+                                            renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_THIRD);
+                                        }
+                                        ImGui::EndGroup();
+                                    }
+                                    ImGui::EndChild();
                                 }
                                 ImGui::EndGroup();
+
+                                // border
+                                objRender::drawRect(currentGroupBoxPos - childBgBorderOffset, groupBoxSize + childBgBorderOffset * 2.f, ImColor(56, 56, 56, thirdChildAlpha), 5.f, 0, 2.f);
+
+                                // line above name
+                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, childFirstLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, thirdChildAlpha));
+
+                                // line below child
+                                objRender::drawFilledRect(currentGroupBoxPos + ImVec2(0.f, groupBoxSize.y - childSecondLineOffset), ImVec2(groupBoxSize.x, childLineHeight), ImColor(56, 56, 56, thirdChildAlpha));
                             }
                             ImGui::EndChild();
                         }
                     }
 
+                    // after it got placed
+                    // set cursor to second child position which is located at right side of main rect and have same Y position as first child
+                    // note that if third child will be rendered
+                    // Y size of child will be changed
                     ImGui::SetCursorPos(prevCursorPos);
                     {
                         int secondChildAlpha = math::toInt(math::toFloat(mainAlpha * secondChildAnimation.getAnimatedValue() * 0.01f));
                         if (secondChildAlpha > 0)
                         {
                             ImVec2 groupBoxSize = ImVec2(218.f, math::toFloat(math::toInt(tabContentsAnim.yChildSize * secondChildYMultiplier))) * DPI_SCALE;
-                            ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y * 0.8f)));
                             ImGui::BeginChild("Second##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+
                                 // bg
                                 objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), 5.f);
 
@@ -656,6 +719,7 @@ void MainWindow::renderTabsContents()
                                 ImGui::SetCursorPos(childContentsOffset);
                                 ImGui::BeginGroup();
                                 {
+                                    ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
                                     ImGui::BeginChild("SecondChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
                                     {
                                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
@@ -686,13 +750,15 @@ void MainWindow::renderTabsContents()
                     }
                 }
 
+                // now we can render first child
+                // which is located at left side of main rect
                 {
                     ImVec2 groupBoxSize = ImVec2(tabContentsAnim.xChildSize, math::toFloat(math::toInt(tabContentsAnim.yChildSize))) * DPI_SCALE;
-                    ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y * 0.8f)));
                     ImGui::SetCursorPos(prevCursorPos);
                     ImGui::BeginChild("First##bmx09bxoic", groupBoxSize, 0, ImGuiWindowFlags_NoBackground);
                     {
                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
+
                         // bg
                         objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, mainAlpha), 5.f);
 
@@ -702,6 +768,7 @@ void MainWindow::renderTabsContents()
                         ImGui::SetCursorPos(childContentsOffset);
                         ImGui::BeginGroup();
                         {
+                            ImVec2 groupBoxContentsSize = ImVec2(groupBoxSize.x, math::toFloat(math::toInt(groupBoxSize.y - childContentsYSizeOffset)));
                             ImGui::BeginChild("FirstChildContents##bmx09bxoic", groupBoxContentsSize, 0, ImGuiWindowFlags_NoBackground);
                             {
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
@@ -731,7 +798,7 @@ void MainWindow::renderTabsContents()
                 }
             }
         }
-        ImGui::EndChild();
+        ImGui::EndGroup();
         ImGui::PopFont();
     }
     ImGui::EndGroup();
