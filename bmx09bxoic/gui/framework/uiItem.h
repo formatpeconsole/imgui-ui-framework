@@ -89,7 +89,7 @@ public:
     virtual bool isVisible() = 0;
     virtual int getItemType() = 0;
     virtual RealItemPath getRealItemPath() = 0;
-    virtual void* getItemPtr() = 0;
+    virtual uintptr_t getItemPtr() = 0;
     virtual void createKey() = 0;
     virtual fnv64Hash getLuaKey() = 0;
     virtual std::string getLuaPath() = 0;
@@ -124,9 +124,9 @@ public:
         return realItemPath;
     }
 
-    void* getItemPtr() override
+    uintptr_t getItemPtr() override
     {
-        return reinterpret_cast<void*>(itemPtr);
+        return reinterpret_cast<uintptr_t>(itemPtr);
     }
 
     void createKey() override

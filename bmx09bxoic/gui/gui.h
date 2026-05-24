@@ -44,7 +44,7 @@
 
 #define ITEM_PTR(name) { reinterpret_cast<uintptr_t>(&name), name.item.itemType }
 #define ITEM_PTR_RT(name) reinterpret_cast<uintptr_t>(&name), name.item.itemType, #name
-#define ITEM_PTR_RT_ARRAY(name, configName) reinterpret_cast<uintptr_t>(&name), name.item.itemType, configName
+#define ITEM_PTR_RT_CUSTOM_NAME(name, configName) reinterpret_cast<uintptr_t>(&name), name.item.itemType, configName
 
 // global
 // scar20

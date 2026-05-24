@@ -15,54 +15,6 @@
 
 #include "../../mem/raii.h"
 
-// what happens
-// when you put full path to UI (where item should be located)
-// name of item added automatically from real item (not rendered one, rendered one just stores pointer of existing item and changes it's state)
-// and for itemPath there is two purposes:
-// 1) calculate real item path (where it should rendered in UI, which tab, subtab & child (depends on layout ofc but still))
-// 2) calculate LUA item path, which will be used for lua api for asking user get item by this way:
-//                                                                                                                              
-//      A) Copy lua item path which will have output as:
-//          
-//          For Example:
-//              
-//              "Ragebot", "Aimbot", "Main", "Enable"
-//                                                                                                                              
-//      B) Get real item location by already saved key (which will be generated from input as i showed above)
-//          
-//          For Example:
-//          
-//              "Ragebot", "Aimbot", "Main", "Enable" 
-// 
-//              Will be converted to:
-//                  "ragebot-aimbot-main-enable"
-// 
-//              And then encrypted to hash
-//              And when you want to find item ptr by this name in lua api
-//              You will scan ONLY item path's HASH, WHICH IS GENERATED at program launch
-// 
-//              And find this in item's list:
-// 
-//              Like 
-//                  "ragebot-aimbot-main-enable" hash is 0xAAAAAAAFFFFFF 
-// 
-//              Will be saved in list
-//              And when user will put correct path
-//              It will generate hashed key of it 
-//              And compare to existing one
-//              Which will be faster alot than scanning each "Item" from user's input
-// 
-//
-//
-#define ITEM_PATH(...) { __VA_ARGS__ }
-#define IS_VISIBLE_DUMMY std::nullopt
-#define PLACE_CHECKBOX(itemPtr, path, visible) getItemsManagerInstance().placeItem<CheckBox>(itemPtr, path, visible)
-#define PLACE_SLIDER_INT(itemPtr, path, visible) getItemsManagerInstance().placeItem<Slider<int>>(itemPtr, path, visible)
-#define PLACE_SLIDER_FLOAT(itemPtr, path, visible) getItemsManagerInstance().placeItem<Slider<float>>(itemPtr, path, visible)
-#define PLACE_COMBO(itemPtr, path, visible) getItemsManagerInstance().placeItem<ComboBox>(itemPtr, path, visible)
-#define PLACE_MULTICOMBO(itemPtr, path, visible) getItemsManagerInstance().placeItem<MultiComboBox>(itemPtr, path, visible)
-#define PLACE_COLORPICKER(itemPtr, path, visible) getItemsManagerInstance().placeItem<ColorPicker>(itemPtr, path, visible)
-
 namespace gui::framework
 {
 namespace
@@ -122,9 +74,35 @@ void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& cur
 
 void MainWindow::renderChildContents(int selection, int subTabSelection, int childType)
 {
+    {
+        static std::optional<std::pair<uintptr_t, int>> duckPeekAssist{};
+        if (!duckPeekAssist.has_value())
+             duckPeekAssist = getItemsManagerInstance().findItemByPath(itemPath{ "Ragebot", "Aimbot", "Hitscan", "Field of View" });
+        else
+        {
+            switch (duckPeekAssist->second)
+            {
+            case ITEM_CHECKBOX:
+            {
+                auto& checkBoxItem = *reinterpret_cast<CheckBox*>(duckPeekAssist->first);
+                checkBoxItem.item.value = !checkBoxItem.item.value;
+
+                printf("%d \n", checkBoxItem.item.value);
+            }
+            break;
+            case ITEM_SLIDER_INT:
+            {
+                auto& sliderIntItem = *reinterpret_cast<Slider<int>*>(duckPeekAssist->first);
+                sliderIntItem.item.value = rand() % 100;
+            }
+            break;
+            }
+        }
+    }
+
     RealItemPath itemPath{ selection, subTabSelection, childType };
 
-    auto& itemsList = getItemsManagerInstance().getItemsList();
+    auto& itemsList = getItemsManagerInstance().getMainWindowItemsList();
     for (auto& i : itemsList)
         renderItem(i, itemPath);
 }

@@ -4,7 +4,7 @@ namespace gui::framework
 {
 ItemsManager::ItemsManager() 
 {
-    tabs = std::move(tabsList{
+    tabs = std::move(mainWindowTabsList{
         tabItself{
             {
                 subTab{"Aimbot", subTabChilds{"Main", "Hitscan"}},
@@ -62,12 +62,12 @@ ItemsManager::~ItemsManager()
     items.clear(); 
 }
 
-tabsList& ItemsManager::getMainWindowTabsList()
+mainWindowTabsList& ItemsManager::getMainWindowTabsList()
 {
     return tabs;
 }
 
-itemsList& ItemsManager::getItemsList()
+mainWindowItemsList& ItemsManager::getMainWindowItemsList()
 {
     return items;
 }
@@ -130,6 +130,19 @@ std::optional<RealItemPath> ItemsManager::getRealItemPath(itemPath& path)
 
     result.childCategory = std::distance(subTab.childs.begin(), currentChild);
     return result;
+}
+
+std::optional<std::pair<uintptr_t, int>> ItemsManager::findItemByPath(const itemPath& path)
+{
+    const auto pathKey = getLuaItemKey(path);
+    auto iter = std::find_if(items.begin(), items.end(), [pathKey](const baseItemPtr& ptr) {
+        return ptr->getLuaKey() == pathKey;
+    });
+
+    if (iter == items.end())
+        return std::nullopt;
+
+    return std::make_pair((*iter)->getItemPtr(), (*iter)->getItemType());
 }
 
 ItemsManager& getItemsManagerInstance()

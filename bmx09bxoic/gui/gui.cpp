@@ -201,18 +201,18 @@ void Menu::initConfig()
     for (int i = 0; i < MAX_CONFIGS; ++i)
     {
         std::string configName = std::format("rage.config[{}]", i);
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].autoFire, std::format("{}.autoFire", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].autoScope, std::format("{}.autoScope", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].fov, std::format("{}.fov", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].hitBoxes, std::format("{}.hitBoxes", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].multiPoints, std::format("{}.multiPoints", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].pointHeadScale, std::format("{}.pointHeadScale", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].pointBodyScale, std::format("{}.pointBodyScale", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].hitChance, std::format("{}.hitChance", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].minDamage, std::format("{}.minDamage", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].preferBody, std::format("{}.preferBody", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].quickStop, std::format("{}.quickStop", configName)));
-        itemsInMemory.emplace_back(ITEM_PTR_RT_ARRAY(rage.config[i].overrideGlobal, std::format("{}.overrideGlobal", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].autoFire, std::format("{}.autoFire", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].autoScope, std::format("{}.autoScope", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].fov, std::format("{}.fov", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].hitBoxes, std::format("{}.hitBoxes", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].multiPoints, std::format("{}.multiPoints", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].pointHeadScale, std::format("{}.pointHeadScale", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].pointBodyScale, std::format("{}.pointBodyScale", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].hitChance, std::format("{}.hitChance", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].minDamage, std::format("{}.minDamage", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].preferBody, std::format("{}.preferBody", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].quickStop, std::format("{}.quickStop", configName)));
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(rage.config[i].overrideGlobal, std::format("{}.overrideGlobal", configName)));
     }
 
     itemsInMemory.emplace_back(ITEM_PTR_RT(rage.enable));
