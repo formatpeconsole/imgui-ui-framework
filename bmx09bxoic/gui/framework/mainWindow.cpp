@@ -98,6 +98,9 @@ void MainWindow::renderChildContents(int selection, int subTabSelection, int chi
             break;
             }
         }
+
+        if (GetAsyncKeyState('M'))
+            getItemsManagerInstance().removeLoadedLuaItems(getLuaStateInstance().getLoadedLuaName());
     }
 
     RealItemPath itemPath{ selection, subTabSelection, childType };
@@ -257,6 +260,9 @@ void MainWindow::initItems()
     PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.zeroOnPeek, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
 
     PLACE_COMBO(&getMenuInstance().dpiScale, ITEM_PATH("Configurations"), IS_VISIBLE_DUMMY);
+
+    getLuaStateInstance().setLoadedLuaName("hardcore-im-going-gore.lua");
+    getItemsManagerInstance().addCheckBox("Perfect fit ayala 1337$$$", ITEM_PATH("Visuals", "Grenades", "Prediction"), IS_VISIBLE_DUMMY);
 }
 
 int MainWindow::getMainAlpha()

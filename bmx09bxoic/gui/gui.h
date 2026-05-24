@@ -142,8 +142,16 @@ struct itemPtr
     int type{};
     std::string configSection{};
 };
-
 using itemsInMemoryList = std::list<itemPtr>;
+
+struct luaItem
+{
+    isVisibleFn isVisible{};
+    std::any item{};
+    int itemType{};
+};
+using luaItemsList = std::list<luaItem>;
+using luaItemsMap = std::unordered_map<std::string, std::list<luaItem>>;
 
 using windowPosSizeAndScale = std::tuple<ImVec2, ImVec2, float>;
 using windowInfo = std::pair<std::string, windowPosSizeAndScale>;
@@ -179,14 +187,22 @@ struct Menu
     ));
 
     RageTab rage{};
+    luaItemsMap luaItems{};
     itemsInMemoryList itemsInMemory{};
     KeyBindManager keyBindManager{};
     WindowsManager windowsManager{};
+
+    template<typename T>
+    void addCustomItem(T& item, std::string name)
+    {
+        itemsInMemory.emplace_back(ITEM_PTR_RT_CUSTOM_NAME(item, name));
+    }
 
     void initConfig();
     void initWindows();
     void renderWindows();
     void destroyWindows();
+    void removeCustomItem(uintptr_t ptr);
 };
 
 extern void init();

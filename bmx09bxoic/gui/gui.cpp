@@ -232,4 +232,19 @@ void Menu::initConfig()
     itemsInMemory.emplace_back(ITEM_PTR_RT(rage.antiAim.freestanding));
     itemsInMemory.emplace_back(ITEM_PTR_RT(rage.antiAim.zeroOnPeek));
 }
+
+void Menu::removeCustomItem(uintptr_t ptr)
+{
+    auto result = itemsInMemory.remove_if([ptr](const itemPtr& item)
+        {
+            return item.ptr == ptr;
+        });
+
+//#ifdef _DEBUG
+//    std::string debugMesage = std::format("Can't remove item in config (memory) list from Lua: {}", getLuaStateInstance().getLoadedLuaName());
+//    assert(result > 0 && debugMesage.c_str());
+//#else
+//    (void)result;
+//#endif
+}
 }

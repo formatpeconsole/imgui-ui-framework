@@ -1,7 +1,31 @@
 #include "itemsManager.h"
+#include "../gui.h"
 
 namespace gui::framework
 {
+#define GET_ITEM_POINTERS(type) \
+    { \
+        auto& currentItem = std::any_cast<type&>(item.item); \
+        itemPointer = reinterpret_cast<uintptr_t>(&currentItem); \
+        itemValuePointer = reinterpret_cast<uintptr_t>(&currentItem.item.value); \
+    } \
+
+std::string LuaState::getLoadedLuaName() 
+{ 
+    return luaName; 
+};
+
+void LuaState::setLoadedLuaName(const std::string& name) 
+{ 
+    luaName = name; 
+}
+
+LuaState& getLuaStateInstance()
+{
+    static LuaState instance;
+    return instance;
+}
+
 ItemsManager::ItemsManager() 
 {
     tabs = std::move(mainWindowTabsList{
@@ -143,6 +167,95 @@ std::optional<std::pair<uintptr_t, int>> ItemsManager::findItemByPath(const item
         return std::nullopt;
 
     return std::make_pair((*iter)->getItemPtr(), (*iter)->getItemType());
+}
+
+static inline luaItem getCheckBoxItem(std::string name, isVisibleFn&& isVisible)
+{
+    luaItem result{};
+    result.isVisible = isVisible;
+    result.itemType = ITEM_CHECKBOX;
+    result.item = MAKE_CHECKBOX_RT(name, false);
+    return result;
+}
+
+static inline std::string getLuaItemNameInConfig(std::string name)
+{
+    return std::format("lua.{}.item.{}", getLuaStateInstance().getLoadedLuaName(), name);
+}
+
+void ItemsManager::addCheckBox(std::string name, itemPath&& path, isVisibleFn&& isVisible)
+{
+    auto luaName = getLuaStateInstance().getLoadedLuaName();
+    auto& luaItems = getMenuInstance().luaItems;
+
+    auto currentLua = luaItems.find(luaName);
+    if (currentLua == luaItems.end())
+        luaItems.insert(std::make_pair(luaName, luaItemsList{}));
+
+    auto& itemsList = luaItems[luaName];
+    itemsList.emplace_back(getCheckBoxItem(name, std::forward<isVisibleFn>(isVisible)));
+
+    auto& latestItem = itemsList.back();
+    auto& latestCheckBox = std::any_cast<CheckBox&>(latestItem.item);
+    getMenuInstance().addCustomItem(latestCheckBox, getLuaItemNameInConfig(name));
+    PLACE_CHECKBOX(&latestCheckBox, std::forward<itemPath>(path), std::forward<isVisibleFn>(latestItem.isVisible));
+}
+
+void ItemsManager::removeLoadedLuaItems(std::string luaName)
+{
+    auto& luaItems = getMenuInstance().luaItems;
+
+    auto currentLua = luaItems.find(luaName);
+    if (currentLua == luaItems.end())
+        return;
+
+    auto& itemsList = luaItems[luaName];
+    if (itemsList.empty())
+        return;
+
+    for (auto& item : itemsList)
+    {
+        uintptr_t itemPointer{}, itemValuePointer{};
+        switch (item.itemType)
+        {
+        case ITEM_CHECKBOX:
+            GET_ITEM_POINTERS(CheckBox);
+            break;
+        case ITEM_SLIDER_INT:
+            GET_ITEM_POINTERS(Slider<int>);
+            break;
+        case ITEM_SLIDER_FLOAT:
+            GET_ITEM_POINTERS(Slider<float>);
+            break;
+        case ITEM_COMBOBOX:
+            GET_ITEM_POINTERS(ComboBox);
+            break;
+        case ITEM_MULTICOMBOBOX:
+            GET_ITEM_POINTERS(MultiComboBox);
+            break;
+        case ITEM_COLOR:
+            GET_ITEM_POINTERS(ColorPicker);
+            break;
+        }
+
+        getMenuInstance().keyBindManager.removeBindsInItem(itemValuePointer);
+        getMenuInstance().removeCustomItem(itemPointer);
+
+        auto result = items.remove_if([itemPointer](const baseItemPtr& item)
+            {
+                return item->getItemPtr() == itemPointer;
+            });
+
+//#ifdef _DEBUG
+//        std::string debugMesage = std::format("Can't remove item in ui item list from Lua: {}", getLuaStateInstance().getLoadedLuaName());
+//        assert(result > 0 && debugMesage.c_str());
+//#else
+//        (void)result;
+//#endif
+    }
+
+    itemsList.clear();
+    luaItems.erase(currentLua);
 }
 
 ItemsManager& getItemsManagerInstance()

@@ -125,6 +125,18 @@ struct tabItself
 using mainWindowTabsList = std::vector<tabItself>;
 using mainWindowItemsList = std::list<baseItemPtr>;
 
+class LuaState
+{
+public:
+    std::string getLoadedLuaName();
+    void setLoadedLuaName(const std::string& name);
+
+private:
+    std::string luaName{};
+};
+
+extern LuaState& getLuaStateInstance();
+
 class ItemsManager
 {
 public:
@@ -134,6 +146,10 @@ public:
     mainWindowItemsList& getMainWindowItemsList();
     std::optional<RealItemPath> getRealItemPath(itemPath& path);
     std::optional<std::pair<uintptr_t, int>> findItemByPath(const itemPath& path);
+
+    void addCheckBox(std::string name, itemPath&& path, isVisibleFn&& isVisible);
+
+    void removeLoadedLuaItems(std::string luaName);
 
     template<typename T>
     void placeItemToMainWindow(T* ptr, itemPath&& path, isVisibleFn&& isVisible)
@@ -164,6 +180,8 @@ public:
     }
 
 private:
+    void placeLatestItemToConfiguration();
+
     mainWindowTabsList tabs{};
     mainWindowItemsList items{};
 };

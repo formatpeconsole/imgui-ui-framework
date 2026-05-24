@@ -335,6 +335,30 @@ public:
         return {};
     }
 
+    void removeBindsInItem(uintptr_t itemBindsPtr)
+    {
+        for (auto it = keyBinds.begin(); it != keyBinds.end();)
+        {
+            if ((*it)->getItemType() == ITEM_UI_OPEN)
+            {
+                it = std::next(it);
+                continue;
+            }
+
+            if (const auto ptr = reinterpret_cast<uintptr_t>((*it)->getItemPtr()); 
+                ptr != itemBindsPtr)
+                continue;
+
+            const auto foundBlock = uiBlock.find((*it)->getItemPtr());
+            if (foundBlock != uiBlock.end())
+            {
+                uiBlock.erase(foundBlock);
+            }
+            (*it)->setValueToOld();
+            it = keyBinds.erase(it);
+        }
+    }
+
     void removeBind(std::string name)
     {
         const auto it = std::find_if(keyBinds.begin(), keyBinds.end(), [&name](const std::shared_ptr<IKeyBind>& bind) {
