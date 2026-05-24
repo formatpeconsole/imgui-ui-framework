@@ -56,12 +56,12 @@
 //
 #define ITEM_PATH(...) { __VA_ARGS__ }
 #define IS_VISIBLE_DUMMY std::nullopt
-#define PLACE_CHECKBOX(itemPtr, path, visible) placeItem<CheckBox>(itemPtr, path, visible)
-#define PLACE_SLIDER_INT(itemPtr, path, visible) placeItem<Slider<int>>(itemPtr, path, visible)
-#define PLACE_SLIDER_FLOAT(itemPtr, path, visible) placeItem<Slider<float>>(itemPtr, path, visible)
-#define PLACE_COMBO(itemPtr, path, visible) placeItem<ComboBox>(itemPtr, path, visible)
-#define PLACE_MULTICOMBO(itemPtr, path, visible) placeItem<MultiComboBox>(itemPtr, path, visible)
-#define PLACE_COLORPICKER(itemPtr, path, visible) placeItem<ColorPicker>(itemPtr, path, visible)
+#define PLACE_CHECKBOX(itemPtr, path, visible) getItemsManagerInstance().placeItem<CheckBox>(itemPtr, path, visible)
+#define PLACE_SLIDER_INT(itemPtr, path, visible) getItemsManagerInstance().placeItem<Slider<int>>(itemPtr, path, visible)
+#define PLACE_SLIDER_FLOAT(itemPtr, path, visible) getItemsManagerInstance().placeItem<Slider<float>>(itemPtr, path, visible)
+#define PLACE_COMBO(itemPtr, path, visible) getItemsManagerInstance().placeItem<ComboBox>(itemPtr, path, visible)
+#define PLACE_MULTICOMBO(itemPtr, path, visible) getItemsManagerInstance().placeItem<MultiComboBox>(itemPtr, path, visible)
+#define PLACE_COLORPICKER(itemPtr, path, visible) getItemsManagerInstance().placeItem<ColorPicker>(itemPtr, path, visible)
 
 namespace gui::framework
 {
@@ -76,8 +76,6 @@ void renderConfigsTab()
 {
     ImGui::BeginGroup();
     {
-     //   combobox::render(getMenuInstance().dpiScale);
-
         if (ImGui::SmallButton("Save"))
             config::saveConfig();
         ImGui::SameLine();
@@ -90,70 +88,6 @@ void renderConfigsTab()
     if (ImGui::SmallButton("Unload"))
         getDllInstance().shouldQuit = true;
 #endif
-}
-
-void renderLUATab()
-{
-}
-
-std::optional<RealItemPath> MainWindow::getRealItemPath(itemPath& path)
-{
-    if (path.empty() || path.size() < 2)
-        return {};
-
-    auto& mainTabName = path[0];
-
-    std::optional<std::string> subTabName = std::nullopt;
-    if (path.size() > 1)
-        subTabName = path[1];
-
-    std::optional<std::string> childName = std::nullopt;
-    if (path.size() > 2)
-        childName = path[2];
-
-    auto currentTab = std::find_if(tabs.begin(), tabs.end(), [&mainTabName](const tabItself& tab) {
-        return tab.name == mainTabName;
-    });
-
-    if (currentTab == tabs.end())
-        return {};
-
-    RealItemPath result{};
-    result.tab = std::distance(tabs.begin(), currentTab);
-
-    auto& tab = tabs[result.tab];
-    if (tab.noSubTabs)
-    {
-        result.subTab = 0;
-        result.childCategory = CHILD_CATEGORY_FIRST;
-        return result;
-    }
-
-    if (!subTabName.has_value())
-        return {};
-
-    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](const subTab& sub) {
-        return subTabName.value() == sub.name;
-    });
-
-    if (currentSubTab == tab.subTabs.end())
-        return {};
-
-    result.subTab = std::distance(tab.subTabs.begin(), currentSubTab);
-
-    if (!childName.has_value())
-        return {};
-
-    auto& subTab = tab.subTabs[result.subTab];
-    auto currentChild = std::find_if(subTab.childs.begin(), subTab.childs.end(), [&childName](const std::string& child) {
-        return childName.value() == child;
-    });
-
-    if (currentChild == subTab.childs.end())
-        return {};
-    
-    result.childCategory = std::distance(subTab.childs.begin(), currentChild);
-    return result;
 }
 
 void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& currentItemPath)
@@ -190,7 +124,8 @@ void MainWindow::renderChildContents(int selection, int subTabSelection, int chi
 {
     RealItemPath itemPath{ selection, subTabSelection, childType };
 
-    for (auto& i : items)
+    auto& itemsList = getItemsManagerInstance().getItemsList();
+    for (auto& i : itemsList)
         renderItem(i, itemPath);
 }
 
@@ -274,17 +209,13 @@ bool tabButton(const char* name, const char* formattedName, ImVec2 sizeArg, bool
     return pressed;
 }
 
-MainWindow::MainWindow(tabsList tabs, std::string name, ImVec2 size)
-    : tabs(tabs), name(name), size(size), tabSelection(0), prevDpiScale(1.f), windowAlpha(0.f)
+MainWindow::MainWindow(std::string name, ImVec2 size)
+    : name(name), size(size), tabSelection(0), prevDpiScale(1.f), windowAlpha(0.f)
 {
     initItems();
 }
 
-MainWindow::~MainWindow()
-{
-    tabs.clear();
-    items.clear();
-}
+MainWindow::~MainWindow() { }
 
 void MainWindow::initItems()
 {
@@ -381,6 +312,8 @@ void MainWindow::renderBottomInfo()
 
 void MainWindow::renderTabs()
 {
+    auto& tabs = getItemsManagerInstance().getMainWindowTabsList();
+
     ImGui::SetCursorPos(mainPos.baseTabs * DPI_SCALE);
     ImGui::BeginGroup();
     {
@@ -446,6 +379,7 @@ void MainWindow::renderTabs()
 
 void MainWindow::updateTabsAnimation()
 {
+    auto& tabs = getItemsManagerInstance().getMainWindowTabsList();
     auto& selectedTab = tabs[tabSelection];
     std::optional<subTab> selectedSubTab = {};
     if (!selectedTab.noSubTabs)
@@ -492,6 +426,7 @@ void MainWindow::renderTabsContents()
 {
     updateTabsAnimation();
  
+    auto& tabs = getItemsManagerInstance().getMainWindowTabsList();
     auto& selectedTab = tabs[tabSelection];
     std::optional<subTab> selectedSubTab = {};
     if (!selectedTab.noSubTabs)

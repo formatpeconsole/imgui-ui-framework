@@ -34,6 +34,7 @@
     <ClCompile Include="render\animation\animation.cpp" />
     <ClCompile Include="clock\clock.cpp" />
     <ClCompile Include="cheat-base\defines.cpp" />
+    <ClCompile Include="gui\framework\itemsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="threadpool\threadpool.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="clock\clock.h" />
     <ClInclude Include="cheat-base\defines.h" />
     <ClInclude Include="deps\fnv64hash\hash.h" />
-    <ClInclude Include="gui\framework\items.h" />
+    <ClInclude Include="gui\framework\uiItem.h" />
+    <ClInclude Include="gui\framework\itemsManager.h" />
   </ItemGroup>
 </Project>

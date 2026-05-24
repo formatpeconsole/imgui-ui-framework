@@ -12,7 +12,7 @@
 #include "../render/render.h"
 #include "binds/binds.h"
 #include "framework/window.h"
-#include "framework/items.h"
+#include "framework/uiItem.h"
 #include "item.h"
 
 #undef min

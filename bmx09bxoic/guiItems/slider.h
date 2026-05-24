@@ -9,7 +9,7 @@
 
 #include "../gui/item.h"
 #include "../gui/gui.h"
-#include "../gui/framework/items.h"
+#include "../gui/framework/uiItem.h"
 
 #include "keybind.h"
 #include "utils.h"
