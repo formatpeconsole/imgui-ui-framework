@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <chrono>
+#include <lua.hpp>
 
 #include "dllInstance.h"
 

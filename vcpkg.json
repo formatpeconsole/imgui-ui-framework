@@ -5,6 +5,7 @@
     "lunasvg",
     "nlohmann-json",
     "plutosvg",
-    "minhook"
+    "minhook",
+    "lua"
   ]
 }

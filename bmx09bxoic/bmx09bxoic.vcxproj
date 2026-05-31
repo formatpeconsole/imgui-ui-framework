@@ -46,11 +46,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)vcpkg_installed\x64-windows-static\include;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype\config;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutovg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutosvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\lunasvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\libpng16;$(SolutionDir)vcpkg_installed\x64-windows-static\include\nlohmann;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\lib;$(LibraryPath);$(SolutionDir)bmx09bxoic\deps\lua\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)vcpkg_installed\x64-windows-static\include;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype;$(SolutionDir)vcpkg_installed\x64-windows-static\include\freetype\config;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutovg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\plutosvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\lunasvg;$(SolutionDir)vcpkg_installed\x64-windows-static\include\libpng16;$(SolutionDir)vcpkg_installed\x64-windows-static\include\nlohmann;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\debug\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)vcpkg_installed\x64-windows-static\debug\lib;$(LibraryPath);$(SolutionDir)bmx09bxoic\deps\lua\lib</LibraryPath>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -74,7 +74,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>rpcrt4.lib;bz2.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlib.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16.lib;freetype.lib;minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rpcrt4.lib;lua.lib;bz2.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlib.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16.lib;freetype.lib;minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -97,7 +97,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>rpcrt4.lib;bz2d.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlibd.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16d.lib;freetyped.lib;minhook.x64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rpcrt4.lib;lua.lib;bz2d.lib;brotlicommon.lib;brotlidec.lib;brotlienc.lib;zlibd.lib;lunasvg.lib;plutosvg.lib;plutovg.lib;libpng16d.lib;freetyped.lib;minhook.x64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
