@@ -460,7 +460,7 @@ void MainWindow::renderTabsContents()
             auto mainAlpha = getMainAlpha();
             int itemsAlpha = math::toInt(windowAlpha * (tabContentsAnim.selectedTabAnimation.getAnimatedValue() * 0.01f) * 255.f);
 
-            objRender::drawFilledRect(currentPos, childSize, ImColor(6, 6, 6, mainAlpha), CHILD_ROUNDING);
+            objRender::drawFilledRect(currentPos, childSize, ImColor(18, 18, 18, mainAlpha), CHILD_ROUNDING);
 
             // those offsets are supposed to render contents
             // depends on UI layout in Figma 
@@ -526,7 +526,7 @@ void MainWindow::renderTabsContents()
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                                 // bg
-                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(0, 0, 0, thirdChildAlpha), CONTENTS_ROUNDING);
+                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, thirdChildAlpha), CONTENTS_ROUNDING);
 
                                 std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 2 ? gui::items::getFormattedText(selectedSubTab->childs[2]) : "";
                                 objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, thirdChildAlpha), childName.c_str());
@@ -572,7 +572,7 @@ void MainWindow::renderTabsContents()
                                 auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                                 // bg
-                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(0, 0, 0, secondChildAlpha), CONTENTS_ROUNDING);
+                                objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, secondChildAlpha), CONTENTS_ROUNDING);
 
                                 std::string childName = selectedSubTab.has_value() && selectedSubTab->childCount > 1 ? gui::items::getFormattedText(selectedSubTab->childs[1]) : "";
                                 objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, secondChildAlpha), childName.c_str());
@@ -615,7 +615,7 @@ void MainWindow::renderTabsContents()
                         auto currentGroupBoxPos = ImGui::GetWindowPos() + ImGui::GetCursorPos();
 
                         // bg
-                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(0, 0, 0, mainAlpha), CONTENTS_ROUNDING);
+                        objRender::drawFilledRect(currentGroupBoxPos, groupBoxSize, ImColor(33, 33, 33, mainAlpha), CONTENTS_ROUNDING);
 
                         std::string childName = selectedSubTab.has_value() ? gui::items::getFormattedText(selectedSubTab->childs[0]) : "Main";
                         objRender::renderText(render::getFont(FONT_ITEMS), currentGroupBoxPos + textOffset, ImColor(174, 174, 174, mainAlpha), childName.c_str());
@@ -703,7 +703,7 @@ void MainWindow::render()
 
         // background
         {
-            objRender::drawFilledRect(pos, size, ImColor(18, 18, 18, getMainAlpha()), WINDOW_ROUNDING);
+            objRender::drawFilledRect(pos, size, ImColor(33, 33, 33, getMainAlpha()), WINDOW_ROUNDING);
 
             // main ui (name, items, info)
             renderWindowContents();
@@ -718,7 +718,7 @@ void MainWindow::render()
             const int maxShadowRange = math::toInt(10.f * DPI_SCALE);
             ImColor shadowColor = ImColor(0, 0, 0, getMainAlpha());
             objRender::drawRectShadow(pos - shadowBorderOffset, size + shadowBorderOffset * 2, std::forward<ImColor>(shadowColor), maxShadowRange, 45.f, WINDOW_ROUNDING);
-            objRender::drawRect(pos - borderOffset, size + borderOffset, ImColor(20, 20, 20, borderBgAlpha), WINDOW_ROUNDING);
+            objRender::drawRect(pos - borderOffset, size + borderOffset, ImColor(33, 33, 33, borderBgAlpha), WINDOW_ROUNDING);
         }
     }
     ImGui::End();
