@@ -1,30 +1,18 @@
 #include "itemsManager.h"
 #include "../gui.h"
+#include "../../lua/luaManager.h"
+#include "../../mem/string.h"
 
 namespace gui::framework
 {
+using namespace lua;
+
 #define GET_ITEM_POINTERS(type) \
     { \
         auto& currentItem = std::any_cast<type&>(item.item); \
         itemPointer = reinterpret_cast<uintptr_t>(&currentItem); \
         itemValuePointer = reinterpret_cast<uintptr_t>(&currentItem.item.value); \
     } \
-
-std::string LuaState::getLoadedLuaName() 
-{ 
-    return luaName; 
-};
-
-void LuaState::setLoadedLuaName(const std::string& name) 
-{ 
-    luaName = name; 
-}
-
-LuaState& getLuaStateInstance()
-{
-    static LuaState instance;
-    return instance;
-}
 
 ItemsManager::ItemsManager() 
 {
@@ -101,18 +89,27 @@ std::optional<RealItemPath> ItemsManager::getRealItemPath(itemPath& path)
     if (path.empty() || path.size() < 2)
         return {};
 
-    auto& mainTabName = path[0];
+    auto mainTabName = path[0];
+    std::transform(mainTabName.begin(), mainTabName.end(), mainTabName.begin(), TOLOWER_STRING);
 
     std::optional<std::string> subTabName = std::nullopt;
     if (path.size() > 1)
+    {
         subTabName = path[1];
+        std::transform(subTabName->begin(), subTabName->end(), subTabName->begin(), TOLOWER_STRING);
+    }
 
     std::optional<std::string> childName = std::nullopt;
     if (path.size() > 2)
+    {
         childName = path[2];
+        std::transform(childName->begin(), childName->end(), childName->begin(), TOLOWER_STRING);
+    }
 
-    auto currentTab = std::find_if(tabs.begin(), tabs.end(), [&mainTabName](const tabItself& tab) {
-        return tab.name == mainTabName;
+    auto currentTab = std::find_if(tabs.begin(), tabs.end(), [&mainTabName](tabItself tab) {
+        auto tabNameCaseInsensitive = tab.name;
+        std::transform(tabNameCaseInsensitive.begin(), tabNameCaseInsensitive.end(), tabNameCaseInsensitive.begin(), TOLOWER_STRING);
+        return tabNameCaseInsensitive == mainTabName;
     });
 
     if (currentTab == tabs.end())
@@ -132,8 +129,10 @@ std::optional<RealItemPath> ItemsManager::getRealItemPath(itemPath& path)
     if (!subTabName.has_value())
         return {};
 
-    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](const subTab& sub) {
-        return subTabName.value() == sub.name;
+    auto currentSubTab = std::find_if(tab.subTabs.begin(), tab.subTabs.end(), [&subTabName](subTab sub) {
+        auto subTabCaseInsensitive = sub.name;;
+        std::transform(subTabCaseInsensitive.begin(), subTabCaseInsensitive.end(), subTabCaseInsensitive.begin(), TOLOWER_STRING);
+        return subTabName.value() == subTabCaseInsensitive;
     });
 
     if (currentSubTab == tab.subTabs.end())
@@ -145,8 +144,10 @@ std::optional<RealItemPath> ItemsManager::getRealItemPath(itemPath& path)
         return {};
 
     auto& subTab = tab.subTabs[result.subTab];
-    auto currentChild = std::find_if(subTab.childs.begin(), subTab.childs.end(), [&childName](const std::string& child) {
-        return childName.value() == child;
+    auto currentChild = std::find_if(subTab.childs.begin(), subTab.childs.end(), [&childName](std::string child) {
+        auto childCaseInsensitive = child;;
+        std::transform(childCaseInsensitive.begin(), childCaseInsensitive.end(), childCaseInsensitive.begin(), TOLOWER_STRING);
+        return childName.value() == childCaseInsensitive;
     });
 
     if (currentChild == subTab.childs.end())

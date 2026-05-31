@@ -74,35 +74,6 @@ void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& cur
 
 void MainWindow::renderChildContents(int selection, int subTabSelection, int childType)
 {
-    {
-        static std::optional<std::pair<uintptr_t, int>> duckPeekAssist{};
-        if (!duckPeekAssist.has_value())
-             duckPeekAssist = getItemsManagerInstance().findItemByPath(itemPath{ "Ragebot", "Aimbot", "Hitscan", "Field of View" });
-        else
-        {
-            switch (duckPeekAssist->second)
-            {
-            case ITEM_CHECKBOX:
-            {
-                auto& checkBoxItem = *reinterpret_cast<CheckBox*>(duckPeekAssist->first);
-                checkBoxItem.item.value = !checkBoxItem.item.value;
-
-                printf("%d \n", checkBoxItem.item.value);
-            }
-            break;
-            case ITEM_SLIDER_INT:
-            {
-                auto& sliderIntItem = *reinterpret_cast<Slider<int>*>(duckPeekAssist->first);
-                sliderIntItem.item.value = rand() % 100;
-            }
-            break;
-            }
-        }
-
-        if (GetAsyncKeyState('M'))
-            getItemsManagerInstance().removeLoadedLuaItems(getLuaStateInstance().getLoadedLuaName());
-    }
-
     RealItemPath itemPath{ selection, subTabSelection, childType };
 
     auto& itemsList = getItemsManagerInstance().getMainWindowItemsList();
@@ -260,9 +231,6 @@ void MainWindow::initItems()
     PLACE_CHECKBOX(&getMenuInstance().rage.antiAim.zeroOnPeek, ITEM_PATH("Ragebot", "Anti-Aim", "Main"), IS_VISIBLE_DUMMY);
 
     PLACE_COMBO(&getMenuInstance().dpiScale, ITEM_PATH("Configurations"), IS_VISIBLE_DUMMY);
-
-    getLuaStateInstance().setLoadedLuaName("hardcore-im-going-gore.lua");
-    getItemsManagerInstance().addCheckBox("Perfect fit ayala 1337$$$", ITEM_PATH("Visuals", "Grenades", "Prediction"), IS_VISIBLE_DUMMY);
 }
 
 int MainWindow::getMainAlpha()

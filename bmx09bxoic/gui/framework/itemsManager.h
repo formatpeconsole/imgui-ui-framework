@@ -125,18 +125,6 @@ struct tabItself
 using mainWindowTabsList = std::vector<tabItself>;
 using mainWindowItemsList = std::list<baseItemPtr>;
 
-class LuaState
-{
-public:
-    std::string getLoadedLuaName();
-    void setLoadedLuaName(const std::string& name);
-
-private:
-    std::string luaName{};
-};
-
-extern LuaState& getLuaStateInstance();
-
 class ItemsManager
 {
 public:

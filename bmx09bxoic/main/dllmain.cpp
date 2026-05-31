@@ -14,8 +14,10 @@
 #include "../hooks/hooks.h"
 #include "../render/render.h"
 #include "../gui/gui.h"
+#include "../lua/luaManager.h"
 
 using namespace std::chrono_literals;
+using namespace lua;
 
 static void findModuleHandles()
 {
@@ -82,6 +84,7 @@ void APIENTRY destroy()
     unhookGameFunctions();
     render::destroy();
     gui::destroy();
+    getLuaStateInstance().destroy();
 
 #ifdef _DEBUG
     destroyConsole();
@@ -94,6 +97,7 @@ void APIENTRY Main(HMODULE handle)
 
     gui::init();
     getSimpleThreadPoolInstance().init();
+    getLuaStateInstance().init();
 
     DEBUG_LOG("creating instance...");
 
@@ -103,6 +107,8 @@ void APIENTRY Main(HMODULE handle)
     findModuleHandles();
     initDllSignatures();
     hookGameFunctions();
+
+    getLuaStateInstance().executeScript("bmx09bxoic.lua");
 
 #ifdef _DEBUG
     while (!getDllInstance().shouldQuit)
