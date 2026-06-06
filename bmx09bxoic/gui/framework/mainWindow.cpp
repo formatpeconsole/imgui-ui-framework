@@ -7,8 +7,6 @@
 #include "../../guiItems/items.h"
 #include "../../guiItems/utils.h"
 
-#include "../../main/dllInstance.h"
-
 #include "../../config/config.h"
 
 #include "../../cheat-base/math.h"
@@ -35,11 +33,6 @@ void renderConfigsTab()
             config::loadConfig();
     }
     ImGui::EndGroup();
-
-#ifdef _DEBUG
-    if (ImGui::SmallButton("Unload"))
-        getDllInstance().shouldQuit = true;
-#endif
 }
 
 void MainWindow::renderItem(const baseItemPtr& baseItem, const RealItemPath& currentItemPath)
@@ -558,8 +551,6 @@ void MainWindow::renderTabsContents()
                                         ImGui::SetCursorPos(itemsOffset);
                                         ImGui::BeginGroup();
                                         {
-                                            renderConfigsTab();
-
                                             renderChildContents(tabSelection, selectedTab.subTabSelection, CHILD_CATEGORY_SECOND);
                                         }
                                         ImGui::EndGroup();

@@ -1,15 +1,15 @@
 [Repository with bind system](https://github.com/formatpeconsole/miraclestar)
 
-W.I.P DLC for cs2
+Simple UI Framework based on ImGui
 
 What it have:
 - UI Framework (Animations, Lua-related ui architecture, multi-binds system)
-- MultiThreading (ThreadPool)
+- Simple Thread Pool
 - Config System
-- D3D Hooks
 - Correct WinAPI key handler
-- Lua API (W.I.P)
+- Simple Lua API (adding elements)
 
-![](https://i.imgur.com/ofv5CWe.gif)
+![](https://i.imgur.com/YlPSvB1.png)
 
 Made by miraclestar
+(C) (26-04-2026 to 06-06-2026)

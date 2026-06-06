@@ -137,6 +137,7 @@ public:
 
     std::shared_ptr<BaseItem> addCheckBox(std::string name, itemPath&& path, isVisibleFn&& isVisible);
     std::shared_ptr<BaseItem> addSliderInt(std::string name, int min, int max, itemPath&& path, isVisibleFn&& isVisible);
+    std::shared_ptr<BaseItem> addComboBox(std::string name, std::vector<std::string>&& itemsList, itemPath&& path, isVisibleFn&& isVisible);
 
     void removeLoadedLuaItems(std::string luaName);
 

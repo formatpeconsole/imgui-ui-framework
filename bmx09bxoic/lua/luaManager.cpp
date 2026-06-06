@@ -91,7 +91,7 @@ static int lua_AddCheckBox(lua_State* L)
 
     lua_setfield(L, -2, "_ptr");
     lua_pushcfunction(L, lua_CheckBoxSet);
-    lua_setfield(L, -2, "set"); 
+    lua_setfield(L, -2, "set");
     lua_pushcfunction(L, lua_CheckBoxGet);
     lua_setfield(L, -2, "get");
     lua_pushcfunction(L, lua_itemSetVisible);
@@ -155,7 +155,7 @@ static int lua_AddSlider(lua_State* L)
 
 void createUiMetaTable(lua_State* L)
 {
-    struct luaL_Reg uiMethods[] = 
+    struct luaL_Reg uiMethods[] =
     {
         {"checkbox", lua_AddCheckBox},
         {"slider", lua_AddSlider},
@@ -196,7 +196,14 @@ lua_State* LuaState::getState()
 void LuaState::executeScript(std::string path)
 {
     setLoadedLuaName(path);
-    luaL_dofile(state, path.c_str());
+    int status = luaL_dofile(state, path.c_str());
+
+    if (status != LUA_OK) 
+    {
+        const char* error_msg = lua_tostring(state, -1);
+        printf("Lua Error: %s\n", error_msg);
+        lua_pop(state, 1);
+    }
 }
 
 std::string LuaState::getLoadedLuaName()

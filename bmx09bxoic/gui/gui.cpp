@@ -6,7 +6,7 @@
 #include "framework/bindsWindow.h"
 #include "framework/mainWindow.h"
 
-#include "../main/dllInstance.h"
+#include "../main/instance.h"
 
 #include "../guiItems/items.h"
 #include "../config/config.h"
@@ -144,7 +144,6 @@ void WindowsManager::updateDpiScale()
 
         render::getRenderInfoInstance().init = false;
         render::destroy();
-        render::clearRenderTargetView();
         prevDpi = framework::DPI_SCALE;
     }
 }

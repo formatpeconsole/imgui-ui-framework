@@ -6,12 +6,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main\dllmain.cpp">
+    <ClCompile Include="main\winMain.cpp">
       <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="threadpool\threadpool.cpp" />
-    <ClCompile Include="main\dllInstance.cpp" />
-    <ClCompile Include="mem\sigscan.cpp" />
+    <ClCompile Include="main\instance.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui_demo.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui_draw.cpp" />
@@ -20,8 +19,6 @@
     <ClCompile Include="deps\imguiFramework\imgui_tables.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui_widgets.cpp" />
     <ClCompile Include="deps\imguiFramework\imgui_freetype.cpp" />
-    <ClCompile Include="in-game\sigs\sigs-handles.cpp" />
-    <ClCompile Include="hooks\hooks.cpp" />
     <ClCompile Include="render\render.cpp" />
     <ClCompile Include="gui\gui.cpp" />
     <ClCompile Include="gui\binds\binds.cpp" />
@@ -39,10 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="threadpool\threadpool.h" />
-    <ClInclude Include="main\dllInstance.h" />
+    <ClInclude Include="main\instance.h" />
     <ClInclude Include="mem\raii.h" />
-    <ClInclude Include="mem\sigscan.h" />
-    <ClInclude Include="mem\ptr.h" />
     <ClInclude Include="deps\imguiFramework\imconfig.h" />
     <ClInclude Include="deps\imguiFramework\imgui.h" />
     <ClInclude Include="deps\imguiFramework\imgui_impl_dx11.h" />
@@ -52,8 +47,6 @@
     <ClInclude Include="deps\imguiFramework\imstb_textedit.h" />
     <ClInclude Include="deps\imguiFramework\imstb_truetype.h" />
     <ClInclude Include="deps\imguiFramework\imgui_freetype.h" />
-    <ClInclude Include="in-game\sigs\sigs-handles.h" />
-    <ClInclude Include="hooks\hooks.h" />
     <ClInclude Include="render\render.h" />
     <ClInclude Include="gui\gui.h" />
     <ClInclude Include="gui\binds\binds.h" />

@@ -1,6 +1,6 @@
 #include "binds.h"
 #include "../gui.h"
-#include "../../main/dllInstance.h"
+#include "../../main/instance.h"
 
 namespace gui::binds
 {

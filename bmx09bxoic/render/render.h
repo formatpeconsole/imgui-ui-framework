@@ -48,10 +48,6 @@ extern void popFont();
 
 extern void init(IDXGISwapChain* pSwapChain);
 extern void destroy();
-extern void clearRenderTargetView();
-
-extern void onRender(IDXGISwapChain* pSwapChain);
-extern void onResize();
 
 extern RenderInfo& getRenderInfoInstance();
 }

@@ -17,14 +17,3 @@ extern void destroyConsole();
 
 #define DEBUG_LOG(s)
 #endif
-
-struct Dll
-{
-    std::atomic<bool> shouldQuit;
-
-#ifdef _DEBUG
-    std::atomic<bool> unloaded;
-#endif
-};
-
-extern Dll& getDllInstance();

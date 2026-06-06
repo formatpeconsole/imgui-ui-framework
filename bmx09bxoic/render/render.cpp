@@ -1,6 +1,5 @@
 #include "render.h"
 
-#include "../hooks/hooks.h"
 #include "../gui/gui.h"
 #include "../gui/framework/window.h"
 
@@ -122,8 +121,6 @@ void init(IDXGISwapChain* pSwapChain)
     ImGui_ImplWin32_Init(getRenderInfoInstance().cs2Window);
     ImGui_ImplDX11_Init(getRenderInfoInstance().device, getRenderInfoInstance().deviceContext);
 
-    getRenderInfoInstance().wndProcOrig = (WNDPROC)SetWindowLongPtrA(getRenderInfoInstance().cs2Window, GWLP_WNDPROC, (LONG_PTR)hooks::Hooked_WndProc);
-
     ImGui_ImplDX11_InvalidateDeviceObjects();
     ImGui_ImplDX11_CreateDeviceObjects();
 
@@ -138,21 +135,8 @@ void init(IDXGISwapChain* pSwapChain)
     getRenderInfoInstance().init = true;
 }
 
-void clearRenderTargetView()
-{
-    if (getRenderInfoInstance().renderTargetView)
-    {
-        getRenderInfoInstance().renderTargetView->Release();
-        getRenderInfoInstance().renderTargetView = nullptr;
-    }
-}
-
 void destroy()
 {
-    SetWindowLongPtrA(getRenderInfoInstance().cs2Window, GWLP_WNDPROC, (LONG_PTR)getRenderInfoInstance().wndProcOrig);
-
-    clearRenderTargetView();
-
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
 
@@ -165,53 +149,6 @@ void onResize()
 {
     getMenuInstance().windowsManager.backupAllUiPositions(framework::DPI_SCALE);
     destroy();
-}
-
-void onRender(IDXGISwapChain* pSwapChain)
-{
-    getMenuInstance().windowsManager.updateDpiScale();
-
-    if (!getRenderInfoInstance().init)
-        init(pSwapChain);
-    else
-    {
-        if (!getRenderInfoInstance().renderTargetView)
-        {
-            ID3D11Texture2D* pBackBuffer = nullptr;
-            pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-
-            D3D11_RENDER_TARGET_VIEW_DESC RenderTargetDesc;
-            memset(&RenderTargetDesc, 0, sizeof(RenderTargetDesc));
-
-            RenderTargetDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            RenderTargetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
-
-            if (pBackBuffer)
-            {
-                getRenderInfoInstance().device->CreateRenderTargetView(pBackBuffer, &RenderTargetDesc, &getRenderInfoInstance().renderTargetView);
-                pBackBuffer->Release();
-            }
-        }
-
-        ImGui::SetCurrentContext(getRenderInfoInstance().imguiContext);
-
-        getRenderInfoInstance().deviceContext->OMGetRenderTargets(1, &getRenderInfoInstance().mainRenderTarget, 0);
-        getRenderInfoInstance().deviceContext->OMSetRenderTargets(1, &getRenderInfoInstance().renderTargetView, 0);
-
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-
-        ImGui::NewFrame();
-
-        getMenuInstance().renderWindows();
-
-        ImGui::EndFrame();
-        ImGui::Render();
-
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-        getRenderInfoInstance().deviceContext->OMSetRenderTargets(1, &getRenderInfoInstance().mainRenderTarget, 0);
-    }
 }
 
 RenderInfo& getRenderInfoInstance()
